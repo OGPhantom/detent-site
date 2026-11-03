@@ -212,7 +212,7 @@
     + `<div class="card more"><p>None of them unlocks anything.</p><span>They help the wave pass, and each one counts as an urge ridden out.</span></div>`;
   $$("[data-cards]").forEach(c => (c.innerHTML = cardHTML));
   let tick = 0;
-  setInterval(() => {
+  if ($("[data-cards]")) setInterval(() => {
     tick++;
     $$("[data-steps]").forEach(e => (e.textContent = Math.round(((tick % 70) / 70) * 200)));
     $$("[data-push]").forEach(e => (e.textContent = Math.floor(tick / 16) % 21));
@@ -237,11 +237,19 @@
     requestAnimationFrame(go);
   }
   function featureTarget(dir) {
-    const max = document.documentElement.scrollHeight - innerHeight;
-    const ys = [...new Set($$("#features > section").map(el => Math.min(max, Math.round(el.getBoundingClientRect().top + scrollY - TOP))))].sort((a, b) => a - b);
-    const y = scrollY;
-    if (dir > 0) { for (const v of ys) if (v > y + 2) return v; return null; }
-    for (let i = ys.length - 1; i >= 0; i--) if (ys[i] < y - 2) return ys[i];
+    const max = document.documentElement.scrollHeight - innerHeight, y = scrollY;
+    const secs = $$("#features > section").map(el => {
+      const r = el.getBoundingClientRect(), top = Math.min(max, Math.round(r.top + y - TOP));
+      return { top, end: Math.min(max, Math.max(top, Math.round(r.bottom + y - innerHeight))) }; // end: the bottom of a tall section in view
+    });
+    const cur = secs.find(c => c.top <= y + 2 && c.end + innerHeight > y + 2);
+    if (dir > 0) {
+      if (cur && cur.end > y + 2) return cur.end;
+      for (const c of secs) if (c.top > y + 2) return c.top;
+      return null;
+    }
+    if (cur && cur.top < y - 2) return cur.top;
+    for (let i = secs.length - 1; i >= 0; i--) if (secs[i].top < y - 2) return secs[i].end > secs[i].top + 2 ? secs[i].end : secs[i].top;
     return null;
   }
   function stepTarget(dir) {
@@ -258,7 +266,7 @@
     return null;
   }
   addEventListener("wheel", e => {
-    if (innerWidth < 900 || reduce || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
+    if (innerWidth < 900 || reduce || e.ctrlKey || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
     const now = performance.now(), newGesture = now - lastWheel > 220;
     lastWheel = now;
     if (animating || (!newGesture && gestureUsed)) {
@@ -270,7 +278,7 @@
     e.preventDefault(); gestureUsed = true; glide(to);
   }, { passive: false });
   addEventListener("keydown", e => {
-    if (innerWidth < 900 || animating || e.target.closest("button, input, textarea")) return;
+    if (innerWidth < 900 || animating || e.shiftKey || e.metaKey || e.ctrlKey || e.altKey || e.target.closest("button, input, textarea")) return;
     const dir = ["ArrowDown", "PageDown", " "].includes(e.key) ? 1 : ["ArrowUp", "PageUp"].includes(e.key) ? -1 : 0;
     if (!dir) return;
     const to = stepTarget(dir);
@@ -297,7 +305,7 @@
       timer = setTimeout(() => pick((i + 1) % opts.length), dwell);
     }
     opts.forEach((o, k) => o.addEventListener("click", () => pick(k)));
-    new IntersectionObserver(es => es.forEach(e => { visible = e.isIntersecting; if (visible) pick(i); else clearTimeout(timer); }), { threshold: 0.5 }).observe(group.closest(".fx-row"));
+    new IntersectionObserver(es => es.forEach(e => { visible = e.isIntersecting; if (visible) pick(i); else { clearTimeout(timer); if (live[name + "Stop"]) live[name + "Stop"](); } }), { rootMargin: "-45% 0px -45% 0px" }).observe(group.closest(".fx-row"));
   });
 
   /* ---------- Features: the live task phone ---------- */
@@ -381,6 +389,7 @@
       clearInterval(pzTimer); if (n === 4) { moves = 14; q("[data-pmoves]").textContent = moves; pzPaint(); pzTimer = setInterval(pzStep, 1200); }
       cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
     };
+    live.urgeStop = () => { cancelAnimationFrame(raf); clearInterval(pzTimer); };
   }
 
   /* ---------- Features: evening mode, an afternoon running into the night ---------- */
@@ -409,7 +418,7 @@
       eveTimer = setTimeout(step, 600);
     }
     paint();
-    new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { m = START; paint(); run(); } else clearTimeout(eveTimer); }), { threshold: 0.5 }).observe($("#fx-eve .fx-row"));
+    new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { m = START; paint(); run(); } else clearTimeout(eveTimer); }), { rootMargin: "-45% 0px -45% 0px" }).observe($("#fx-eve .fx-row"));
   }
 
   /* ---------- Features: progress grid ---------- */
@@ -420,7 +429,7 @@
     $("[data-prog-n]").innerHTML = `<b>${30 - slips.size} of 30</b> days clean · <b>15</b> urges ridden out`;
   }
   pg.addEventListener("click", e => { const b = e.target.closest("[data-d]"); if (!b) return; const d = +b.dataset.d; slips.has(d) ? slips.delete(d) : slips.add(d); pg.classList.remove("pop"); drawProg(); });
-  new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { pg.classList.remove("pop"); void pg.offsetWidth; pg.classList.add("pop"); } }), { threshold: 0.5 }).observe($("#fx-prog .fx-row"));
+  new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { pg.classList.remove("pop"); void pg.offsetWidth; pg.classList.add("pop"); } }), { rootMargin: "-45% 0px -45% 0px" }).observe($("#fx-prog .fx-row"));
   drawProg();
   }
 
