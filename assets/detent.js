@@ -61,11 +61,13 @@
         el.style.transition = "opacity .3s ease, transform .42s cubic-bezier(.3,1.3,.5,1)"; el.style.opacity = 1; el.style.transform = "none";
       });
     }
-    function setSwitch(s, label) {
+    function setSwitch(s, label, glideHome) {
       sw.classList.toggle("on", s === "on"); sw.classList.toggle("cd", s === "cd");
       fill.style.opacity = 0; fill.classList.toggle("o", false);
-      knob.style.transition = "none"; knob.style.left = (s === "on" ? 260 : s === "cd" ? 255 : 6) + "px";
-      lab.style.opacity = 1;
+      knob.style.transition = glideHome && !reduce ? "left .62s cubic-bezier(.3, 1.12, .45, 1)" : "none";
+      knob.style.left = (s === "off" ? 6 : 260) + "px";
+      lab.style.transition = "none"; lab.style.opacity = glideHome && !reduce ? 0 : 1;
+      if (glideHome && !reduce) { void lab.offsetWidth; lab.style.transition = "opacity .3s ease .42s"; lab.style.opacity = 1; }
       lab.className = "ms-lab " + (s === "off" ? "r" : "l");
       lab.innerHTML = s === "off" ? `<span>${label}</span>${icon(16, P.dblR, "ink")}`
         : s === "cd" ? `${icon(16, P.dblL, "softo")}<span>${label}</span>`
@@ -105,7 +107,7 @@
     function toCountdown() {
       state = "cd"; dueAt = Date.now() + 24 * 3600e3;
       const due = new Date(dueAt), hm = due.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-      setSwitch("cd", `Off tomorrow, ${hm}`);
+      setSwitch("cd", `Off tomorrow, ${hm}`, true);
       q("[data-head]").hidden = true; q("[data-timer]").hidden = false;
       q("[data-line]").textContent = `Everything stays blocked until tomorrow, ${hm}. Changing your mind counts as an urge ridden out.`;
       $$(ms, "[data-hours] i").forEach((i, k) => i.classList.toggle("past", k === 0));
@@ -140,8 +142,10 @@
     let drag = null;
     knob.addEventListener("pointerdown", e => { if (busy || state === "cd") return; knob.setPointerCapture(e.pointerId); ms.classList.remove("nudge", "nudge-l"); drag = { x: e.clientX, k: ms.getBoundingClientRect().width / 390, p: 0 }; });
     knob.addEventListener("pointermove", e => { if (!drag) return; const dir = state === "on" ? -1 : 1; drag.p = clamp(((e.clientX - drag.x) * dir) / (254 * drag.k)); follow(drag.p); });
-    const release = () => {
-      if (!drag) return; const p = drag.p; drag = null;
+    const release = e => {
+      if (!drag) return;
+      if (e && e.type === "pointerup") { const dir = state === "on" ? -1 : 1; drag.p = clamp(((e.clientX - drag.x) * dir) / (254 * drag.k)); }
+      const p = drag.p; drag = null;
       if (p > 0.6) {
         busy = true;
         tween(200 * (1 - p) + 120, k => follow(p + (1 - p) * ease(k)), () => {
@@ -154,7 +158,7 @@
         tween(260, k => follow(p * (1 - k)), () => { resetFill(); if (state === "off") { q("[data-h]").textContent = "Unlocked."; q("[data-s]").textContent = "App Store and every site are open."; } fill.style.opacity = 0; lab.style.opacity = 1; });
       }
     };
-    knob.addEventListener("pointerup", release); knob.addEventListener("pointercancel", release);
+    knob.addEventListener("pointerup", release); knob.addEventListener("pointercancel", release); knob.addEventListener("lostpointercapture", release);
     knob.addEventListener("keydown", e => {
       if (e.key !== "Enter" && e.key !== " " && e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       e.preventDefault();
@@ -225,22 +229,26 @@
 
   /* ---------- the story moves one step per swipe on wide screens ---------- */
   const TOP = 0;
-  let animating = false, lastWheel = 0, gestureUsed = false;
+  let animating = false, target = 0, glideId = 0;
+  let lastWheel = -1e4, lastDir = 0, lastFresh = -1e4, peak = 0, recent = [], used = false;
   const stepY = i => steps[i].getBoundingClientRect().top + scrollY - TOP;
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
   function glide(to, dur = 760) {
-    const from = scrollY, t0 = performance.now(); animating = true;
+    const moving = animating, curve = moving ? easeOut : ease; if (moving) dur = 640;
+    const from = scrollY, t0 = performance.now(), id = ++glideId; animating = true; target = to;
     const go = now => {
+      if (id !== glideId) return; // a newer swipe took over
       const k = Math.min(1, (now - t0) / dur);
-      window.scrollTo(0, from + (to - from) * ease(k));
+      window.scrollTo(0, from + (to - from) * curve(k));
       if (k < 1) requestAnimationFrame(go); else { animating = false; syncStory(); }
     };
     requestAnimationFrame(go);
   }
-  function featureTarget(dir) {
-    const max = document.documentElement.scrollHeight - innerHeight, y = scrollY;
+  function featureTarget(dir, y = scrollY) {
+    const max = document.documentElement.scrollHeight - innerHeight;
     const secs = $$("#features > section").map(el => {
-      const r = el.getBoundingClientRect(), top = Math.min(max, Math.round(r.top + y - TOP));
-      return { top, end: Math.min(max, Math.max(top, Math.round(r.bottom + y - innerHeight))) }; // end: the bottom of a tall section in view
+      const r = el.getBoundingClientRect(), top = Math.min(max, Math.round(r.top + scrollY - TOP));
+      return { top, end: Math.min(max, Math.max(top, Math.round(r.bottom + scrollY - innerHeight))) }; // end: the bottom of a tall section in view
     });
     const cur = secs.find(c => c.top <= y + 2 && c.end + innerHeight > y + 2);
     if (dir > 0) {
@@ -252,10 +260,10 @@
     for (let i = secs.length - 1; i >= 0; i--) if (secs[i].top < y - 2) return secs[i].end > secs[i].top + 2 ? secs[i].end : secs[i].top;
     return null;
   }
-  function stepTarget(dir) {
-    if (PAGE === "features") return featureTarget(dir);
+  function stepTarget(dir, y = scrollY) {
+    if (PAGE === "features") return featureTarget(dir, y);
     if (!steps.length) return null;
-    const y = scrollY, first = stepY(0), last = stepY(steps.length - 1);
+    const first = stepY(0), last = stepY(steps.length - 1);
     if (dir > 0) {
       if (y < first - 2 && y > first - innerHeight * 0.95) return first;          // from the hero into step 1
       if (y >= first - 2 && y < last - 2) { for (let i = 0; i < steps.length; i++) if (stepY(i) > y + 2) return stepY(i); }
@@ -265,23 +273,30 @@
     }
     return null;
   }
+  /* A trackpad keeps sending a swipe's momentum for a second or more after the fingers lift.
+     A new swipe is a pause, a turn the other way, or a rise out of a dip in that momentum
+     (the fingers touching down stop it, then the new swipe starts small and grows). */
   addEventListener("wheel", e => {
     if (innerWidth < 900 || reduce || e.ctrlKey || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
-    const now = performance.now(), newGesture = now - lastWheel > 220;
+    const now = e.timeStamp, a = Math.abs(e.deltaY), dir = Math.sign(e.deltaY), gap = now - lastWheel;
     lastWheel = now;
-    if (animating || (!newGesture && gestureUsed)) {
-      if (stepTarget(Math.sign(e.deltaY)) !== null || animating) { e.preventDefault(); return; }
-    }
-    if (newGesture) gestureUsed = false;
-    const to = stepTarget(Math.sign(e.deltaY));
-    if (to === null) return;
-    e.preventDefault(); gestureUsed = true; glide(to);
+    if (!dir || (gap <= 160 && dir !== lastDir && a < 4)) { if (used || animating) e.preventDefault(); return; } // empty, or a wobble as the fingers lift
+    const low = recent.length ? Math.min(...recent) : 0, settled = now - lastFresh > 420;
+    const fresh = gap > 160 || dir !== lastDir || (settled && ((gap > 60 && a > 4) || (a > 10 && a > low * 2.5 && low < peak * 0.5)));
+    lastDir = dir;
+    if (fresh) { lastFresh = now; used = false; peak = a; recent = [a]; }
+    else { peak = Math.max(peak, a); recent.push(a); if (recent.length > 4) recent.shift(); }
+    if (used || (animating && !fresh)) { e.preventDefault(); return; } // the rest of a swipe that already moved the page
+    const to = stepTarget(dir, animating ? target : scrollY);
+    if (to === null) { if (animating) e.preventDefault(); return; }
+    e.preventDefault(); used = true; glide(to);
   }, { passive: false });
   addEventListener("keydown", e => {
-    if (innerWidth < 900 || animating || e.shiftKey || e.metaKey || e.ctrlKey || e.altKey || e.target.closest("button, input, textarea")) return;
+    if (innerWidth < 900 || e.shiftKey || e.metaKey || e.ctrlKey || e.altKey || e.target.closest("button, input, textarea")) return;
+    if (e.repeat && animating) { if (["ArrowDown", "PageDown", " ", "ArrowUp", "PageUp"].includes(e.key)) e.preventDefault(); return; }
     const dir = ["ArrowDown", "PageDown", " "].includes(e.key) ? 1 : ["ArrowUp", "PageUp"].includes(e.key) ? -1 : 0;
     if (!dir) return;
-    const to = stepTarget(dir);
+    const to = stepTarget(dir, animating ? target : scrollY);
     if (to !== null) { e.preventDefault(); glide(to); }
   });
   const toTop = () => window.scrollTo(0, 0);
@@ -392,33 +407,40 @@
     live.urgeStop = () => { cancelAnimationFrame(raf); clearInterval(pzTimer); };
   }
 
-  /* ---------- Features: evening mode, an afternoon running into the night ---------- */
+  /* ---------- Features: evening mode, an afternoon running into the night ----------
+     Half an hour at a time: the clock turns over and the marker glides to it. */
   if ($(".evebar")) {
-    const START = 14 * 60, END = 23 * 60 + 30, WORK = 18 * 60, bar = $(".evebar");
-    let m = START, eveTimer = 0;
+    const START = 15 * 60, END = 23 * 60, WORK = 18 * 60, STEP = 30, bar = $(".evebar");
+    const fillEl = $("[data-evefill]"), markEl = $("[data-evemark]"), nowEl = $("[data-eve-now]");
+    let shown = START, pos = START, eveTimer = 0, eveRaf = 0, running = false;
     const pct = v => (v - 12 * 60) / (24 * 60 - 12 * 60) * 100;
     bar.style.setProperty("--p", pct(WORK));
-    function paint() {
+    const place = v => { fillEl.style.width = pct(v) + "%"; markEl.style.left = pct(v) + "%"; };
+    function label(m, roll) {
       const night = m >= WORK;
-      $("[data-eve-now]").textContent = `${pad(m / 60 | 0)}:${pad(m % 60)}`;
+      nowEl.textContent = `${pad(m / 60 | 0)}:${pad(m % 60)}`;
+      if (roll && !reduce) { nowEl.classList.remove("roll"); void nowEl.offsetWidth; nowEl.classList.add("roll"); }
       $("[data-eve-word]").textContent = m < 17 * 60 ? "afternoon" : m < WORK ? "almost done" : m < 21 * 60 ? "evening" : "night";
       $("[data-eve-t]").textContent = night ? "Evening mode is on" : "Daytime";
       $("[data-eve-s]").textContent = night ? "Nothing unlocks until 07:00, and no install windows either." : "You can ask to turn off. It takes 24 hours.";
-      $("[data-evefill]").style.width = pct(m) + "%"; $("[data-evemark]").style.left = pct(m) + "%";
       bar.classList.toggle("night", night);
       $$('[data-shots="eve"] img').forEach((im, k) => im.classList.toggle("on", k === (night ? 1 : 0)));
     }
-    function run() {
-      clearTimeout(eveTimer);
-      const step = () => {
-        m += 10; if (m > END) { m = START; }
-        paint();
-        eveTimer = setTimeout(step, m === START ? 900 : m === WORK ? 1400 : m >= END ? 1800 : 150);
-      };
-      eveTimer = setTimeout(step, 600);
+    function glideTo(to, dur, done) {
+      const from = pos, t0 = performance.now(); cancelAnimationFrame(eveRaf);
+      const go = now => { const k = reduce ? 1 : Math.min(1, (now - t0) / dur); pos = from + (to - from) * ease(k); place(pos); if (k < 1) eveRaf = requestAnimationFrame(go); else if (done) done(); };
+      eveRaf = requestAnimationFrame(go);
     }
-    paint();
-    new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { m = START; paint(); run(); } else clearTimeout(eveTimer); }), { rootMargin: "-45% 0px -45% 0px" }).observe($("#fx-eve .fx-row"));
+    const wait = (ms_, fn) => { clearTimeout(eveTimer); eveTimer = setTimeout(() => { if (running) fn(); }, ms_); };
+    function next() {
+      if (shown >= END) { wait(2400, () => { shown = START; label(shown, true); glideTo(START, 1200, () => wait(900, next)); }); return; }
+      shown += STEP; label(shown, true);
+      glideTo(shown, 820, () => wait(shown === WORK ? 1800 : 420, next));
+    }
+    function start() { running = true; cancelAnimationFrame(eveRaf); shown = pos = START; label(shown); place(pos); wait(700, next); }
+    function stop() { running = false; clearTimeout(eveTimer); cancelAnimationFrame(eveRaf); }
+    label(shown); place(pos);
+    new IntersectionObserver(es => es.forEach(e => (e.isIntersecting ? start() : stop())), { rootMargin: "-45% 0px -45% 0px" }).observe($("#fx-eve .fx-row"));
   }
 
   /* ---------- Features: progress grid ---------- */

@@ -37,8 +37,8 @@ button { font: inherit; color: inherit; }
 .site { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; }
 .site .word { font: 600 20px/1 var(--display); color: inherit; text-decoration: none; }
 .site nav { display: flex; gap: 22px; font-size: 15px; }
-.site nav a { color: inherit; text-decoration: none; opacity: .82; }
-.site nav a:hover { opacity: 1; text-decoration: underline; }
+.site nav a { color: inherit; text-decoration: none; font-weight: 500; }
+.site nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
 .store { display: inline-flex; align-items: center; gap: 12px; padding: 10px 18px 10px 10px; border-radius: 16px; background: var(--ink); color: var(--bone); text-decoration: none; line-height: 1.2; font-size: 14px; }
 .store img { width: 40px; height: 40px; border-radius: 9px; }
 .store b { display: block; font-weight: 600; font-size: 16px; }
@@ -274,11 +274,13 @@ button.ms-row { cursor: pointer; }
 /* evening: a time slider */
 .eve { margin-top: 30px; max-width: 460px; }
 .eve .now { display: flex; align-items: baseline; gap: 12px; }
-.eve .now b { font: 500 48px/1 var(--mono); letter-spacing: -0.02em; }
+.eve .now b { display: inline-block; font: 500 48px/1 var(--mono); letter-spacing: -0.02em; }
+.eve .now b.roll { animation: eveRoll .5s cubic-bezier(.3, 1.25, .5, 1); }
+@keyframes eveRoll { from { opacity: 0; transform: translateY(12px); } }
 .eve .now span { font-size: 16px; color: var(--sub); }
 .evebar { position: relative; margin-top: 22px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #3A342C 0 calc(var(--p, 50) * 1%), rgba(79, 110, 247, .35) calc(var(--p, 50) * 1%) 100%); }
-.evebar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 3px; background: var(--bone); opacity: .55; }
-.evebar b { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: var(--bone); box-shadow: 0 0 0 5px rgba(236, 232, 222, .14); }
+.evebar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 3px; background: var(--bone); opacity: .55; transition: background .5s ease, opacity .5s ease; }
+.evebar b { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: var(--bone); box-shadow: 0 0 0 5px rgba(236, 232, 222, .14); transition: background .5s ease, box-shadow .5s ease; }
 .evebar.night i { background: #4F6EF7; opacity: 1; }
 .evebar.night b { background: #8FA3FF; box-shadow: 0 0 0 5px rgba(143, 163, 255, .2); }
 .eve input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; margin: 22px 0 0; background: transparent; cursor: pointer; }
