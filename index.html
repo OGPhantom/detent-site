@@ -2,38 +2,127 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Detent · Strict App Blocker</title>
-<meta name="description" content="Detent locks your iPhone against impulsive app installs and adult websites. Locking takes one move; unlocking takes 24 hours.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Detent: Strict App Blocker</title>
+<meta name="description" content="Detent locks app installs, adult websites and the apps that pull you in with one slide. Turning it back on takes 24 hours. Free for iPhone and iPad.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Detent: Strict App Blocker">
+<meta property="og:description" content="Detent locks app installs, adult websites and the apps that pull you in with one slide. Turning it back on takes 24 hours. Free for iPhone and iPad.">
+<meta property="og:image" content="https://ogphantom.github.io/detent-site/img/og.png">
+<meta property="og:url" content="https://ogphantom.github.io/detent-site/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1F45D6">
+<link rel="icon" type="image/png" href="img/icon.png">
+<link rel="apple-touch-icon" href="img/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600&family=Onest:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/detent.css">
 </head>
-<body>
-<main>
-  <header class="site">
-    <a class="wordmark" href="./">Detent</a>
-    <nav><a href="support.html">Support</a><a href="privacy.html">Privacy</a></nav>
-  </header>
+<body data-page="home">
+<template id="dev-tpl">
+  <div class="dev"><span class="island"></span>
+    <div class="ms">
+      <div class="ms-top"><span class="ms-word">Detent</span><span class="ms-set"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span></div>
+      <div class="ms-body">
+        <div data-head>
+          <p class="ms-h tx" data-h>Unlocked.</p>
+          <p class="ms-sub tx" data-s>App Store and every site are open.</p>
+          <p class="ms-lbl" data-lbl>One slide turns on:</p>
+        </div>
+        <div data-timer hidden>
+          <div class="ms-timer"><span class="t" data-t>24:00:00</span><span class="u">until protection turns off</span></div>
+          <p class="ms-line" data-line>Everything stays blocked until then. Changing your mind counts as an urge ridden out.</p>
+          <div class="ms-hours" data-hours></div>
+        </div>
+        <div class="ob-bolts" data-bolts></div>
+        <div class="ms-rest" data-rest style="opacity:0">
+          <div data-sqwrap><div class="ms-sq" data-sq></div><p class="ms-counts" data-counts></p></div>
+          <div class="ms-rows" data-rows></div>
+        </div>
+      </div>
+      <p class="ms-cap" data-cap>On instantly. Off takes 24 hours.</p>
+      <div class="ms-switch"><i class="ms-fill"></i><span class="ms-lab"></span><button class="ms-knob" type="button" aria-label="Slide to lock"></button></div>
+    </div>
+  </div>
+</template>
+<main id="landing">
+  <section class="d-hero">
+    <div class="wrap">
+      <header class="site"><a class="word" href="./">Detent</a><nav><a href="features.html" class="fx-link">Features</a><a href="privacy.html">Privacy</a><a href="support.html">Support</a></nav></header>
+      <div class="grid">
+        <div>
+          <h1>A lock only time can open.</h1>
+          <p class="lede">One slide turns off app installs, adult websites and the apps that pull you in. Turning it back on takes 24 hours.</p>
+          <div class="store light"><img src="img/icon.png" alt=""><span><b>Coming to the App Store</b>24 November, free</span></div>
+          <div class="facts"><span>Free</span><span>No account</span><span>No data collected</span><span>iPhone and iPad</span></div>
+        </div>
+        <div class="d-try">
+          <div class="devwrap" data-dev="hero"></div>
+          <p class="d-hint" data-hint>Slide the switch to the right</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <h1>A lock that only time can open.</h1>
-  <p class="lead">Detent turns off App Store installs and adult websites with
-  one slide, and makes turning them back on take 24 hours. Every way out is
-  slower than the urge.</p>
+  <section class="d-story" id="d-story">
+    <div class="wrap grid">
+      <div class="d-steps">
+        <div class="d-step" data-bg="#ECE8DE" data-fg="#16130F" data-sub="#55504A">
+          <span class="k">Lock</span><h2>One slide. Everything closes.</h2>
+          <p>The App Store stops installing, adult sites are filtered, the apps you choose sit behind a shield, and the clock can't be changed.</p>
+          <div class="phone inline"><div class="scr"><img src="img/phone-01-on.jpg" alt="Locked main screen"></div></div>
+        </div>
+        <div class="d-step" data-bg="#ECE8DE" data-fg="#16130F" data-sub="#55504A">
+          <span class="k">Turning off</span><h2>Turning it off takes a day.</h2>
+          <p>Slide back, take ten seconds to think, do one short task, then wait 24 hours. Change your mind at any step and it counts as an urge you rode out.</p>
+          <div class="phone inline"><div class="scr"><img src="img/phone-b3-countdown.jpg" alt="Countdown screen: 23:41:08 until protection turns off"></div></div>
+        </div>
+        <div class="d-step" data-bg="#1F45D6" data-fg="#ECE8DE" data-sub="#C9D3FF">
+          <span class="k">I have an urge</span><h2>Ride out the wave.</h2>
+          <p>Seven quick tasks for the worst minutes. None of them unlocks anything. They just help the wave pass.</p>
+          <div class="phone inline"><div class="scr"><img src="img/phone-task-breathe.jpg" alt="Breathing task"></div></div>
+        </div>
+        <div class="d-step" data-bg="#16130F" data-fg="#ECE8DE" data-sub="#A9A296">
+          <span class="k">Evening mode</span><h2>Guard your evenings.</h2>
+          <p>From the end of your workday until morning, nothing can be unlocked. That's when the urge is strongest.</p>
+          <div class="phone inline"><div class="scr"><img src="img/phone-04-evening.jpg" alt="Evening mode"></div></div>
+        </div>
+        <div class="d-step" data-bg="#ECE8DE" data-fg="#16130F" data-sub="#55504A">
+          <span class="k">Install window</span><h2>Need an app? Ask for a window.</h2>
+          <p>Wait 15 minutes, install during the next 15, and the lock comes back by itself, even if you never open Detent.</p>
+          <div class="phone inline"><div class="scr"><img src="img/phone-c2-windowopen.jpg" alt="Install window open: 13:02 left to install"></div></div>
+        </div>
+        <div class="d-step" data-bg="#1F45D6" data-fg="#ECE8DE" data-sub="#C9D3FF">
+          <span class="k">Progress</span><h2>Nothing resets to zero.</h2>
+          <p>Detent counts clean days out of the last 30 and every urge you rode out. A slip leaves one gap, not a zero.</p>
+          <div class="phone inline"><div class="scr"><img src="img/phone-06-rode-it-out.jpg" alt="Rode it out"></div></div>
+        </div>
+      </div>
+      <div class="d-sticky" aria-hidden="true">
+        <div class="phone"><div class="scr">
+          <img class="on" src="img/phone-01-on.jpg" alt=""><img src="img/phone-b3-countdown.jpg" alt=""><img src="img/phone-task-breathe.jpg" alt=""><img src="img/phone-04-evening.jpg" alt=""><img src="img/phone-c2-windowopen.jpg" alt=""><img src="img/phone-06-rode-it-out.jpg" alt="">
+        </div></div>
+        <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+  </section>
 
-  <ul>
-    <li>One switch blocks installs, filters adult sites and shields the apps
-    you choose.</li>
-    <li>Unlocking takes 24 hours. Cancel any time; every cancel is a win.</li>
-    <li>Need a work app? A short install window closes by itself.</li>
-    <li>Everything stays on your iPhone: no account, no tracking.</li>
-  </ul>
+  <section class="urges">
+    <div class="wrap">
+      <div class="head"><h2>Seven ways to ride out an urge</h2><p>Tap "I have an urge" and pick one. Each takes a few minutes. None of them unlocks anything.</p></div>
+      <div class="cards" data-cards></div>
+    </div>
+  </section>
 
-  <p class="meta">Coming to the App Store for iPhone (iOS 26 or later).</p>
-
-  <footer>Detent · <a href="support.html">Support</a> ·
-  <a href="privacy.html">Privacy Policy</a></footer>
+  <section class="end">
+    <div class="wrap grid">
+      <h2>Lock it before the next urge.</h2>
+      <div class="store light"><img src="img/icon.png" alt=""><span><b>Coming to the App Store</b>24 November, free</span></div>
+    </div>
+    <div class="wrap"><div class="foot"><span>© 2026 Nikita Storchai</span><span><a href="features.html">Features</a> · <a href="support.html">Support</a> · <a href="privacy.html">Privacy</a></span></div></div>
+  </section>
 </main>
+<script src="assets/detent.js"></script>
 </body>
 </html>

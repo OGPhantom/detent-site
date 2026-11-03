@@ -7,17 +7,6 @@
   --cobalt: #1F45D6;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #16130F;
-    --surface: #221E19;
-    --text: #ECE8DE;
-    --muted: #A9A296;
-    --line: #3A342C;
-    --cobalt: #8FA3FF;
-  }
-}
-
 * { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
@@ -53,7 +42,9 @@ header.site {
   text-decoration: none;
 }
 
-nav a { margin-left: 16px; }
+header.site nav { display: flex; gap: 18px; font-size: 15px; }
+header.site nav a { color: inherit; text-decoration: none; opacity: .82; }
+header.site nav a:hover { opacity: 1; text-decoration: underline; }
 
 h1 {
   font-family: "Unbounded", system-ui, sans-serif;

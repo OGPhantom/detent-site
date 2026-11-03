@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What Detent does</title>
+<meta name="description" content="Every Detent feature on the real app screens: the switch, the 24-hour way out, seven urge tasks, evening mode, the install window and more.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="What Detent does">
+<meta property="og:description" content="Every Detent feature on the real app screens: the switch, the 24-hour way out, seven urge tasks, evening mode, the install window and more.">
+<meta property="og:image" content="https://ogphantom.github.io/detent-site/img/og.png">
+<meta property="og:url" content="https://ogphantom.github.io/detent-site/features.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1F45D6">
+<link rel="icon" type="image/png" href="img/icon.png">
+<link rel="apple-touch-icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/detent.css">
+</head>
+<body data-page="features">
+<template id="dev-tpl">
+  <div class="dev"><span class="island"></span>
+    <div class="ms">
+      <div class="ms-top"><span class="ms-word">Detent</span><span class="ms-set"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span></div>
+      <div class="ms-body">
+        <div data-head>
+          <p class="ms-h tx" data-h>Unlocked.</p>
+          <p class="ms-sub tx" data-s>App Store and every site are open.</p>
+          <p class="ms-lbl" data-lbl>One slide turns on:</p>
+        </div>
+        <div data-timer hidden>
+          <div class="ms-timer"><span class="t" data-t>24:00:00</span><span class="u">until protection turns off</span></div>
+          <p class="ms-line" data-line>Everything stays blocked until then. Changing your mind counts as an urge ridden out.</p>
+          <div class="ms-hours" data-hours></div>
+        </div>
+        <div class="ob-bolts" data-bolts></div>
+        <div class="ms-rest" data-rest style="opacity:0">
+          <div data-sqwrap><div class="ms-sq" data-sq></div><p class="ms-counts" data-counts></p></div>
+          <div class="ms-rows" data-rows></div>
+        </div>
+      </div>
+      <p class="ms-cap" data-cap>On instantly. Off takes 24 hours.</p>
+      <div class="ms-switch"><i class="ms-fill"></i><span class="ms-lab"></span><button class="ms-knob" type="button" aria-label="Slide to lock"></button></div>
+    </div>
+  </div>
+</template>
+<main id="features">
+  <section class="fx-hero">
+    <div class="wrap">
+      <header class="site"><a class="word" href="./">Detent</a><nav><a href="features.html" class="fx-link">Features</a><a href="privacy.html">Privacy</a><a href="support.html">Support</a></nav></header>
+      <div class="intro">
+        <div><h1>What Detent does</h1><p class="lede">Every screen on this page is the real app.</p></div>
+        <nav class="fx-index" aria-label="Features"><a href="#fx-switch" data-jump="fx-switch"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span class="l">The switch</span><span class="v">one slide</span><svg class="c" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="#fx-off" data-jump="fx-off"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 5 8 9s-8 5-8 9"/><path d="M16 3c0 4-8 5-8 9s8 5 8 9"/></svg><span class="l">Turning off</span><span class="v">24 h</span><svg class="c" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="#fx-urge" data-jump="fx-urge"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/></svg><span class="l">I have an urge</span><span class="v">7 tasks</span><svg class="c" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="#fx-eve" data-jump="fx-eve"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span class="l">Evening mode</span><span class="v">after work</span><svg class="c" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="#fx-win" data-jump="fx-win"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10M8 10l4 4 4-4M5 19h14"/></svg><span class="l">Install window</span><span class="v">15 + 15 min</span><svg class="c" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="#fx-prog" data-jump="fx-prog"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg><span class="l">Progress</span><span class="v">30 days</span><svg class="c" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="#fx-door" data-jump="fx-door"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4-3 7.5-7 9-4-1.5-7-5-7-9V6l7-3z"/></svg><span class="l">Back door</span><span class="v">72 h</span><svg class="c" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a><a href="#fx-lang" data-jump="fx-lang"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3 3.2 15 0 18M12 3c-3.2 3-3.2 15 0 18"/></svg><span class="l">Languages</span><span class="v">8</span><svg class="c" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></nav>
+      </div>
+    </div>
+  </section>
+
+  <section class="fx-sec plain" id="fx-switch"><div class="wrap fx-row">
+    <div class="txt"><span class="k">The switch</span><h2>One slide locks four things.</h2><p>App Store installs, adult websites, the apps you choose and the clock. Locking is instant. Try it, then slide back to see the 24 hours start.</p></div>
+    <div class="fx-dev"><div class="devwrap" data-dev="fx"></div><p class="fx-cap" data-fxhint>Slide the switch to the right</p></div>
+  </div></section>
+
+  <section class="fx-sec plain" id="fx-off"><div class="wrap fx-row">
+    <div class="txt"><span class="k">Turning off</span><h2>Every way out is slower than the urge.</h2><p>Slide back and Detent asks why, waits ten seconds, gives you one short task, then counts down a full day. Keep protection at any step and it counts as an urge you rode out.</p>
+      <div class="opts" data-opts="off"><button class="opt" type="button" aria-pressed="true" data-i="0"><span class="l">Ten seconds to think</span><span class="v">10 s</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="1"><span class="l">One short task</span><span class="v">2–3 min</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="2"><span class="l">Wait out the day</span><span class="v">24 h</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="3"><span class="l">Or keep protection</span><span class="v">any time</span><span class="run"></span></button></div></div>
+    <div class="fx-phone"><div class="phone"><div class="scr" data-shots="off"><img class="on" src="img/s-b1-pause.jpg" alt="Why turn it off? Ten seconds to think"><img src="img/s-b2-task.jpg" alt="One task, then 24 hours"><img src="img/phone-b3-countdown.jpg" alt="23:41:08 until protection turns off"><img src="img/s-b4-cancelled.jpg" alt="Good call. Countdown stopped"></div></div></div>
+  </div></section>
+
+  <section class="fx-sec cob" id="fx-urge"><div class="wrap fx-row">
+    <div class="txt"><span class="k">I have an urge</span><h2>Seven tasks for the worst minutes.</h2><p>None of them unlocks anything. They keep your hands busy while the wave passes, and every one counts as an urge ridden out.</p>
+      <div class="opts" data-opts="urge"><button class="opt" type="button" aria-pressed="true" data-i="0"><span class="l">Breathe</span><span class="v">2 min</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="1"><span class="l">Phone down</span><span class="v">3 min</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="2"><span class="l">Follow the dot</span><span class="v">2 min</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="3"><span class="l">Walk</span><span class="v">200 steps</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="4"><span class="l">Puzzle</span><span class="v">3 min</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="5"><span class="l">Nose push-ups</span><span class="v">20 reps</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="6"><span class="l">Retype your letter</span><span class="v">1 min</span><span class="run"></span></button></div></div>
+    <div class="fx-dev"><div class="devwrap" data-livewrap><div class="dev"><span class="island"></span><div class="ms" data-live>
+      <div class="ts on" data-t="0"><div class="bar"><span class="back"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></span><span class="mid">Breathe · 2 min</span></div>
+        <div class="bbox"><div class="bsq" data-bsq>4</div></div><div class="bword" data-bword>Inhale</div>
+        <div class="bphases"><span><i class="on" data-bp="0">In 4</i></span><span><i data-bp="1">Hold 4</i></span><span><i data-bp="2">Out 6</i></span></div>
+        <div class="btime"><b data-btime>1:31</b><span>left</span></div><p class="bfoot">Leave the app and the timer pauses.</p></div>
+      <div class="ts" data-t="1"><div class="bar"><span class="back"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></span></div><h3 class="h44">Put it<br>down.</h3>
+        <div class="dtime"><b data-dtime>3:00</b><span data-dword>starts face down</span></div>
+        <svg class="dflip" data-dflip width="342" height="220" viewBox="0 0 342 220" aria-hidden="true"><path d="M171.0 12 H203 A26 26 0 0 1 229 38 V182 A26 26 0 0 1 203 208 H139 A26 26 0 0 1 113 182 V38 A26 26 0 0 1 139 12 Z" fill="none" stroke="#D9D3C6" stroke-width="3"/><path data-dring d="M171.0 12 H203 A26 26 0 0 1 229 38 V182 A26 26 0 0 1 203 208 H139 A26 26 0 0 1 113 182 V38 A26 26 0 0 1 139 12 Z" pathLength="100" fill="none" stroke="#1F45D6" stroke-width="3" stroke-linecap="round" stroke-dasharray="0 100"/><g class="face"><rect x="123" y="22" width="96" height="176" rx="18" fill="#1F45D6"/><rect x="156" y="31" width="30" height="9" rx="4.5" fill="#16130F"/></g><g class="backside"><rect x="123" y="22" width="96" height="176" rx="18" fill="#16130F"/><rect x="133" y="32" width="34" height="34" rx="10" fill="#2A2620"/><circle cx="144" cy="43" r="5.5" fill="#55504A"/><circle cx="156" cy="55" r="5.5" fill="#55504A"/></g><g class="arrow"><path d="M262 64 C 292 92 292 128 262 156" fill="none" stroke="#16130F" stroke-width="1.8" stroke-linecap="round"/><path d="M254 150 L262 157 L268 147" fill="none" stroke="#16130F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+        <p class="note" style="margin-top:24px;font-size:16px">Screen to the table. The timer starts by itself, and a soft buzz tells you when the three minutes are up.</p>
+        <p class="note" style="margin-top:10px;font-size:14px">Don’t lock it. Face down, the screen goes dark by itself.</p><p class="stop">Stop</p></div>
+      <div class="ts" data-t="2"><div class="bar"><span class="back"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></span></div><h3 class="h44">Eyes on<br>the dot.</h3>
+        <div class="drow"><span data-dset>Set 2 of 4</span><span data-dleft>1:16 left</span></div>
+        <div class="dsets"><i><b style="width:100%"></b></i><i><b data-dbar></b></i><i><b></b></i><i><b></b></i></div>
+        <div class="dlane"><i class="ln"></i><i class="tk" style="left:0"></i><i class="tk" style="left:340.5px"></i><i class="dt" data-dot="3" style="width:12px;height:12px;opacity:.12"></i><i class="dt" data-dot="2" style="width:20px;height:20px;opacity:.22"></i><i class="dt" data-dot="1" style="width:30px;height:30px;opacity:.38"></i><i class="dt" data-dot="0" style="width:44px;height:44px"></i></div>
+        <p class="note" style="margin-top:36px;font-size:16px">Keep the picture in mind. Only your eyes move; your head stays still.</p><p class="stop">Stop</p></div>
+      <div class="ts" data-t="3"><div class="bar"><span class="back"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></span><span class="m" data-wleft>≈ 1 min left</span></div><h3 class="h30">Leave<br>the room.</h3>
+        <div class="wcount"><b data-wn>0</b><span>/ 200 steps</span></div>
+        <svg class="wsnake" width="342" height="240" viewBox="0 0 342 240" aria-hidden="true"><text x="308" y="8" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" fill="#55504A">50</text><text x="34" y="72" font-family="JetBrains Mono, monospace" font-size="12" fill="#55504A">100</text><text x="308" y="136" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" fill="#55504A">150</text><text x="34" y="200" font-family="JetBrains Mono, monospace" font-size="12" fill="#55504A">200</text><path d="M32 24 H310 A32 32 0 0 1 310 88 H32 A32 32 0 0 0 32 152 H310 A32 32 0 0 1 310 216 H32" fill="none" stroke="#D9D3C6" stroke-width="16" stroke-linecap="round"/><path data-wpath d="M32 24 H310 A32 32 0 0 1 310 88 H32 A32 32 0 0 0 32 152 H310 A32 32 0 0 1 310 216 H32" fill="none" stroke="#1F45D6" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 2000"/><circle data-wdot cx="32" cy="24" r="10" fill="#F8F6F0" stroke="#1F45D6" stroke-width="4"/></svg>
+        <p class="note" style="margin-top:22px">Your phone counts the steps. Go anywhere — just away from where the urge hit.</p><p class="stop">Stop</p></div>
+      <div class="ts" data-t="4"><div class="bar"><span class="back"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></span><span class="m" data-ptime>1:48</span></div><h3 class="h30">Slide them<br>in order.</h3>
+        <div class="prow"><span><b>2</b> solved</span><span><span data-pmoves>14</span> moves</span></div>
+        <div class="pboard"><div class="pgrid" data-pgrid></div></div><p class="stop">Stop</p></div>
+      <div class="ts push" data-t="5"><div class="bar"><span class="back"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></span><span class="m" data-pleft>13 to go</span></div>
+        <div class="parea"><div class="num"><b data-pn>7</b><span>of 20</span></div><div class="fill" data-pfill></div><div class="num over" data-pover><b data-pn2>7</b><span>of 20</span></div></div><p class="stop">Stop</p></div>
+      <div class="ts" data-t="6"><div class="bar"><span class="back"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></span></div>
+        <div class="lhead"><h3>Retype your<br>letter.</h3><div class="c"><b data-ln>0</b><span>/ <span data-lt>127</span></span></div></div>
+        <p class="lwhen">You wrote this on Oct 12</p>
+        <div class="lpaper"><span data-ldone></span><span class="rest" data-lrest></span></div>
+        <p class="llab">Retype it by hand — paste is off</p>
+        <div class="lfield"><span data-ltyped></span><span class="caret"></span></div></div>
+    </div></div></div></div>
+  </div></section>
+
+  <section class="fx-sec ink" id="fx-eve"><div class="wrap fx-row">
+    <div class="txt"><span class="k">Evening mode</span><h2>Nothing unlocks after work.</h2><p>Tell Detent when your workday ends. From then until morning there are no install windows and no turning off.</p>
+      <div class="eve">
+        <div class="now"><b data-eve-now>15:00</b><span data-eve-word>afternoon</span></div>
+        <div class="evebar" aria-hidden="true"><i data-evefill></i><b data-evemark></b></div>
+        <div class="ticks"><span>12:00</span><span>18:00 work ends</span><span>24:00</span></div>
+        <p class="state"><b data-eve-t>Daytime</b><span data-eve-s>You can ask to turn off. It takes 24 hours.</span></p>
+      </div>
+    </div>
+    <div class="fx-phone"><div class="phone"><div class="scr" data-shots="eve"><img class="on" src="img/phone-01-on.jpg" alt="Daytime main screen"><img src="img/phone-04-evening.jpg" alt="Evening mode main screen"></div></div></div>
+  </div></section>
+
+  <section class="fx-sec plain" id="fx-win"><div class="wrap fx-row">
+    <div class="txt"><span class="k">Install window</span><h2>Need one app? Open a window.</h2><p>Ask, wait 15 minutes, then the App Store is open for 15. After that it locks again by itself, even if you never open Detent. Social apps and adult sites stay blocked the whole time.</p>
+      <div class="opts" data-opts="win"><button class="opt" type="button" aria-pressed="true" data-i="0"><span class="l">Ask, then wait</span><span class="v">15 min</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="1"><span class="l">Install what you need</span><span class="v">15 min</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="2"><span class="l">Locks again by itself</span><span class="v">0 taps</span><span class="run"></span></button></div></div>
+    <div class="fx-phone"><div class="phone"><div class="scr" data-shots="win"><img class="on" src="img/phone-c1-window-wait.jpg" alt="12:47 until the install window opens"><img src="img/phone-c2-windowopen.jpg" alt="13:02 left to install"><img src="img/phone-01-on.jpg" alt="Locked again"></div></div></div>
+  </div></section>
+
+  <section class="fx-sec plain" id="fx-prog"><div class="wrap fx-row">
+    <div class="txt"><span class="k">Progress</span><h2>A slip is a gap, not a zero.</h2><p>Detent shows the clean days out of your last 30 and every urge you rode out. No streak to lose. Tap a day to mark a slip.</p>
+      <div class="prog"><div class="g" data-prog></div><p class="n" data-prog-n></p></div>
+    </div>
+    <div class="fx-phone"><div class="phone"><div class="scr" data-shots="prog"><img class="on" src="img/phone-06-rode-it-out.jpg" alt="Rode it out: 15 urges ridden out"></div></div></div>
+  </div></section>
+
+  <section class="fx-sec plain" id="fx-door"><div class="wrap fx-row">
+    <div class="txt"><span class="k">Back door</span><h2>Close the way around it.</h2><p>Optional, in Settings. Detent sets your iPhone's Screen Time passcode and hides it, with a paper copy for an envelope. Seeing it again takes 72 hours.</p>
+      <div class="opts" data-opts="door"><button class="opt" type="button" aria-pressed="true" data-i="0"><span class="l">The code stays hidden</span><span class="v">sealed</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="1"><span class="l">72 hours to see it</span><span class="v">72 h</span><span class="run"></span></button></div></div>
+    <div class="fx-phone"><div class="phone"><div class="scr" data-shots="door"><img class="on" src="img/s-e2-codevault.jpg" alt="I keep the code. Hidden since 12 Oct"><img src="img/s-e3-codecountdown.jpg" alt="71:58:12 until the code shows"></div></div></div>
+  </div></section>
+
+  <section class="fx-sec plain" id="fx-lang"><div class="wrap fx-row">
+    <div class="txt"><span class="k">Languages</span><h2>Eight languages, switchable in the app.</h2><p>Pick one in Settings. It doesn't have to match your iPhone's.</p>
+      <div class="opts" data-opts="lang"><button class="opt" type="button" aria-pressed="true" data-i="0"><span class="l">English</span><span class="v">EN</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="1"><span class="l">Русский</span><span class="v">RU</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="2"><span class="l">Українська</span><span class="v">UK</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="3"><span class="l">Deutsch</span><span class="v">DE</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="4"><span class="l">Español</span><span class="v">ES</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="5"><span class="l">Français</span><span class="v">FR</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="6"><span class="l">Português (Brasil)</span><span class="v">PT</span><span class="run"></span></button><button class="opt" type="button" aria-pressed="false" data-i="7"><span class="l">Polski</span><span class="v">PL</span><span class="run"></span></button></div></div>
+    <div class="fx-phone"><div class="phone"><div class="scr" data-shots="lang"><img class="on" src="img/phone-01-on.jpg" alt="English"><img src="img/lang-ru.jpg" alt="Russian"><img src="img/lang-uk.jpg" alt="Ukrainian"><img src="img/lang-de.jpg" alt="German"><img src="img/lang-es.jpg" alt="Spanish"><img src="img/lang-fr.jpg" alt="French"><img src="img/lang-pt-BR.jpg" alt="Brazilian Portuguese"><img src="img/lang-pl.jpg" alt="Polish"></div></div></div>
+  </div></section>
+
+  
+  <section class="fx-end">
+    <div class="wrap fx-end-in">
+      <div class="fx-end-main">
+        <img class="fx-end-icon" src="img/icon.png" alt="Detent app icon">
+        <h2>Lock it before the next urge.</h2>
+        <div class="store light"><span><b>Coming to the App Store</b>24 November, free</span></div>
+      </div>
+      <div class="foot"><span>© 2026 Nikita Storchai</span><span><a href="features.html">Features</a> · <a href="support.html">Support</a> · <a href="privacy.html">Privacy</a></span></div>
+    </div>
+  </section>
+</main>
+<script src="assets/detent.js"></script>
+</body>
+</html>
