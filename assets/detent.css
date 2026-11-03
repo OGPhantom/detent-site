@@ -380,10 +380,10 @@ button.ms-row { cursor: pointer; }
 .ts .dtime b { font: 500 48px/1 var(--mono); letter-spacing: -0.02em; }
 .ts .dtime span { font-size: 14px; color: #55504A; }
 .ts .dflip { margin-top: 24px; display: block; overflow: visible; }
-.ts .dflip .face, .ts .dflip .backside, .ts .dflip .arrow { transition: opacity .35s ease; }
+.ts .dflip .face, .ts .dflip .backside { transition: opacity .35s ease; }
 .ts .dflip.wait .face { animation: dFace 4.4s ease-in-out infinite; }
 .ts .dflip.wait .backside { animation: dBack 4.4s ease-in-out infinite; }
-.ts .dflip.down .face, .ts .dflip.down .arrow { opacity: 0; }
+.ts .dflip.down .face { opacity: 0; }
 @keyframes dFace { 0%, 38% { opacity: 1; } 50%, 88% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes dBack { 0%, 38% { opacity: 0; } 50%, 88% { opacity: 1; } 100% { opacity: 0; } }
 .ts.img { padding: 0; }
