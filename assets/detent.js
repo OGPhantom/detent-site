@@ -265,9 +265,10 @@
     if (!steps.length) return null;
     const first = stepY(0), last = stepY(steps.length - 1);
     if (dir > 0) {
-      if (y < first - 2 && y > first - innerHeight * 0.95) return first;          // from the hero into step 1
+      if (y < first - 2 && y >= first - innerHeight - 2) return first;           // from the hero into step 1
       if (y >= first - 2 && y < last - 2) { for (let i = 0; i < steps.length; i++) if (stepY(i) > y + 2) return stepY(i); }
     } else {
+      if (y > 2 && y <= first + 2 && first <= innerHeight + 2) return 0;         // from step 1 back up to the hero
       if (y > last + 2 && y < last + innerHeight * 0.95) return last;            // from below back into the last step
       if (y > first + 2 && y <= last + 2) { for (let i = steps.length - 1; i >= 0; i--) if (stepY(i) < y - 2) return stepY(i); }
     }
