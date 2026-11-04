@@ -32,9 +32,17 @@
     q("[data-bolts]").innerHTML = LOCKS.map(([ic, n]) => `<div class="ob-bolt"><span class="nm">${icon(18, P[ic])}<span>${n}</span></span><span class="rail"><i class="bar"></i><b class="catch"></b></span></div>`).join("");
     q("[data-hours]").innerHTML = Array.from({ length: 24 }, (_, k) => `<i style="--k:${k}"></i>`).join("");
     const rows = $$(ms, ".ob-bolt");
+    let fillFade = 0;
     let state = "off", urges = 14, busy = false, frames = [], timers = [], ticker = 0, dueAt = 0;
     const later = (ms_, fn) => { const id = setTimeout(fn, reduce ? 0 : ms_); timers.push(id); };
-    const say = t => { if (hint) hint.textContent = t; };
+    let sayTimer = 0;
+    const say = t => {
+      if (!hint || hint.dataset.say === t) return;
+      hint.dataset.say = t; clearTimeout(sayTimer);
+      if (reduce) { hint.textContent = t; return; }
+      hint.style.transition = "opacity .25s ease"; hint.style.opacity = 0;
+      sayTimer = setTimeout(() => { hint.textContent = t; hint.style.transition = "opacity .5s ease"; hint.style.opacity = 1; }, 260);
+    };
     const tween = (dur, fn, done) => {
       if (reduce) { fn(1); if (done) done(); return; }
       const t0 = performance.now();
@@ -61,18 +69,28 @@
         el.style.transition = "opacity .3s ease, transform .42s cubic-bezier(.3,1.3,.5,1)"; el.style.opacity = 1; el.style.transform = "none";
       });
     }
-    function setSwitch(s, label, glideHome) {
+    function setSwitch(s, label, glideHome, labelDelay) {
       sw.classList.toggle("on", s === "on"); sw.classList.toggle("cd", s === "cd");
-      fill.style.opacity = 0; fill.classList.toggle("o", false);
+      const id = ++fillFade;
+      if (fill.style.opacity === "1" && s !== "off" && !reduce) {
+        // the track takes on the fill's colour underneath it first, then the fill steps aside
+        later(560, () => {
+          if (id !== fillFade || drag) return;
+          fill.style.transition = "opacity .2s ease"; fill.style.opacity = 0;
+          later(230, () => { if (id === fillFade && !drag) { fill.classList.remove("o"); fill.style.transition = ""; } });
+        });
+      } else { fill.style.opacity = 0; fill.classList.toggle("o", false); }
       knob.style.transition = glideHome && !reduce ? "left 1.1s cubic-bezier(.22, 1, .36, 1)" : "none";
       knob.style.left = (s === "off" ? 6 : 260) + "px";
-      lab.style.transition = "none"; lab.style.opacity = glideHome && !reduce ? 0 : 1;
-      if (glideHome && !reduce) { void lab.offsetWidth; lab.style.transition = "opacity .4s ease .75s"; lab.style.opacity = 1; }
+      const soft = (glideHome || labelDelay !== undefined) && !reduce;
+      lab.style.transition = "none"; lab.style.opacity = soft ? 0 : 1;
+      if (soft) { void lab.offsetWidth; lab.style.transition = `opacity .45s ease ${glideHome ? .75 : labelDelay}s`; lab.style.opacity = 1; }
       lab.className = "ms-lab " + (s === "off" ? "r" : "l");
       lab.innerHTML = s === "off" ? `<span>${label}</span>${icon(16, P.dblR, "ink")}`
         : s === "cd" ? `${icon(16, P.dblL, "softo")}<span>${label}</span>`
         : `${icon(16, P.dblL, "soft")}<span>${label}</span><span class="mono">24 H</span>`;
       knob.innerHTML = icon(26, s === "off" ? P.open : s === "cd" ? P.glass : P.lock, s === "off" ? "k-off" : s === "cd" ? "k-cd" : "k-on");
+      knob.classList.remove("pop"); if (label !== "Slide to lock" && !reduce) { void knob.offsetWidth; knob.classList.add("pop"); }
       knob.setAttribute("aria-label", s === "off" ? "Slide right to lock" : s === "cd" ? "Counting down. Tap Keep protection to cancel" : "Slide left to start turning off");
       ms.classList.remove("nudge", "nudge-l");
     }
@@ -91,7 +109,7 @@
     function toOff() {
       state = "off"; frames.forEach(cancelAnimationFrame); frames = [];
       q("[data-h]").textContent = "Unlocked."; q("[data-s]").textContent = "App Store and every site are open.";
-      q("[data-head]").hidden = false; q("[data-timer]").hidden = true; q("[data-lbl]").style.display = ""; q("[data-lbl]").style.opacity = 1;
+      q("[data-head]").hidden = false; q("[data-timer]").hidden = true; Object.assign(q("[data-lbl]").style, { display: "", opacity: 1, maxHeight: "", marginTop: "", marginBottom: "", transition: "" });
       q("[data-bolts]").classList.remove("orange"); rows.forEach(r => { r.classList.remove("seated"); bolt(r, 0); });
       q("[data-rest]").style.opacity = 0; q("[data-cap]").style.opacity = 1;
       setSwitch("off", "Slide to lock"); say("Slide the switch to the right");
@@ -99,7 +117,7 @@
     }
     function toOn(fromCountdown) {
       state = "on"; clearInterval(ticker);
-      setSwitch("on", "Slide to turn off");
+      setSwitch("on", "Slide to turn off", false, fromCountdown ? .2 : .35);
       if (fromCountdown) {
         const head = q("[data-head]"), timer = q("[data-timer]"), rest = q("[data-rest]");
         const back = () => {
@@ -117,19 +135,27 @@
           later(200, () => { back(); fadeIn(head, 0, 440); fadeIn(rest, 140, 440); });
         }
         say("Changed your mind: that counts as an urge ridden out");
-        later(2600, () => { if (state === "on") { ms.classList.add("nudge-l"); say("Slide back to the left"); } });
+        later(2600, () => { if (state === "on") ms.classList.add("nudge-l"); });
         return;
       }
+      const h = q("[data-h]"), sub = q("[data-s]"), lbl = q("[data-lbl]"), rest = q("[data-rest]");
       q("[data-timer]").hidden = true; q("[data-head]").hidden = false;
-      swapText(q("[data-h]"), "Locked."); swapText(q("[data-s]"), "App Store and adult sites are blocked. The clock can't be changed.", 40);
-      const lbl = q("[data-lbl]"); lbl.style.transition = "opacity .15s ease"; lbl.style.opacity = 0; later(160, () => { lbl.style.display = "none"; });
       q("[data-cap]").style.opacity = 0;
       q("[data-bolts]").classList.remove("orange"); rows.forEach(r => bolt(r, 1, { knock: false }));
       squares(); q("[data-sqwrap]").hidden = false;
       q("[data-rows]").innerHTML = row("wave", "I have an urge", "ride it out", "main") + row("install", "Install window", "15 + 15 min");
-      later(fromCountdown ? 0 : 300, () => { q("[data-rest]").style.opacity = 1; });
-      say(fromCountdown ? "Changed your mind: that counts as an urge ridden out" : "Locked. Now slide it back to the left");
-      later(fromCountdown ? 2600 : 1400, () => { if (state === "on") { ms.classList.add("nudge-l"); say("Slide back to the left"); } });
+      const locked = () => { h.textContent = "Locked."; sub.textContent = "App Store and adult sites are blocked. The clock can't be changed."; };
+      if (reduce) { locked(); lbl.style.display = "none"; rest.style.opacity = 1; }
+      else {
+        fadeOut([h, sub], 220);
+        lbl.style.transition = "none"; lbl.style.overflow = "hidden"; lbl.style.maxHeight = lbl.offsetHeight + "px"; void lbl.offsetWidth;
+        lbl.style.transition = "opacity .2s ease, max-height .6s cubic-bezier(.4, 0, .2, 1) .12s, margin .6s cubic-bezier(.4, 0, .2, 1) .12s";
+        lbl.style.opacity = 0; lbl.style.maxHeight = "0px"; lbl.style.marginTop = "0px"; lbl.style.marginBottom = "0px";
+        later(240, () => { locked(); fadeIn(h, 0, 520); fadeIn(sub, 90, 520); });
+        fadeIn(rest, 520, 560);
+      }
+      say("Locked. Now slide it back to the left");
+      later(2200, () => { if (state === "on") ms.classList.add("nudge-l"); });
     }
     function toCountdown() {
       state = "cd"; dueAt = Date.now() + 24 * 3600e3;
@@ -176,7 +202,7 @@
     };
     const resetFill = () => { fill.style.left = 0; fill.style.right = "auto"; };
     let drag = null;
-    knob.addEventListener("pointerdown", e => { if (busy || state === "cd") return; knob.setPointerCapture(e.pointerId); ms.classList.remove("nudge", "nudge-l"); drag = { x: e.clientX, k: ms.getBoundingClientRect().width / 390, p: 0 }; });
+    knob.addEventListener("pointerdown", e => { if (busy || state === "cd") return; knob.setPointerCapture(e.pointerId); fillFade++; ms.classList.remove("nudge", "nudge-l"); drag = { x: e.clientX, k: ms.getBoundingClientRect().width / 390, p: 0 }; });
     knob.addEventListener("pointermove", e => { if (!drag) return; const dir = state === "on" ? -1 : 1; drag.p = clamp(((e.clientX - drag.x) * dir) / (254 * drag.k)); follow(drag.p); });
     const release = e => {
       if (!drag) return;
