@@ -433,6 +433,6 @@ button.ms-row { cursor: pointer; }
   .fx-index { grid-template-columns: 1fr; }
   .fx-phone .phone { --w: min(270px, 68vw); }
 }
-@media (max-width: 520px) { .store { display: flex; width: 100%; justify-content: center; } .cards { gap: 10px; } .card { padding: 10px; gap: 10px; border-radius: 18px; } .card .t { flex-direction: column; gap: 2px; } .card .t b { font-size: 15px; } .card.more p { font-size: 18px; }
+@media (max-width: 520px) { .store { display: flex; width: fit-content; margin-inline: auto; } .cards { gap: 10px; } .card { padding: 10px; gap: 10px; border-radius: 18px; } .card .t { flex-direction: column; gap: 2px; } .card .t b { font-size: 15px; } .card.more p { font-size: 18px; }
   .a-down-t { top: 10%; font-size: 26px; } .a-down-t small { font-size: 10.5px; } .a-table { bottom: 12%; } .a-down { left: calc(50% - 10px); bottom: calc(12% + 3px); width: 20px; height: 34px; border-radius: 5px; } .a-down::after { inset: 2px; border-radius: 4px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
