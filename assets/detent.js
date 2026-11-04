@@ -409,38 +409,52 @@
   }
 
   /* ---------- Features: evening mode, an afternoon running into the night ----------
-     Half an hour at a time: the clock turns over and the marker glides to it. */
+     One continuous run: the clock fast-forwards minute by minute, eases into 18:00 and rests
+     there while evening mode comes on, then runs on into the night and rewinds to the afternoon. */
   if ($(".evebar")) {
-    const START = 15 * 60, END = 23 * 60, WORK = 18 * 60, STEP = 30, bar = $(".evebar");
-    const fillEl = $("[data-evefill]"), markEl = $("[data-evemark]"), nowEl = $("[data-eve-now]");
-    let shown = START, pos = START, eveTimer = 0, eveRaf = 0, running = false;
+    const START = 14 * 60, END = 23 * 60 + 30, WORK = 18 * 60, bar = $(".evebar");
+    const fillEl = $("[data-evefill]"), markEl = $("[data-evemark]"), nowEl = $("[data-eve-now]"), wordEl = $("[data-eve-word]"), stateEl = $(".eve .state");
+    const smooth = t => (1 - Math.cos(Math.PI * t)) / 2;
+    const PLAN = [[START, WORK, 4600, smooth], [WORK, WORK, 1600], [WORK, END, 5600, smooth], [END, END, 2200], [END, START, 1400, ease], [START, START, 800]];
+    const TOTAL = PLAN.reduce((sum, p) => sum + p[2], 0);
     const pct = v => (v - 12 * 60) / (24 * 60 - 12 * 60) * 100;
+    let eveRaf = 0, t0 = 0, lastMin = -1, night = null, fadeTimer = 0;
     bar.style.setProperty("--p", pct(WORK));
-    const place = v => { fillEl.style.width = pct(v) + "%"; markEl.style.left = pct(v) + "%"; };
-    function label(m, roll) {
-      const night = m >= WORK;
-      nowEl.textContent = `${pad(m / 60 | 0)}:${pad(m % 60)}`;
-      if (roll && !reduce) { nowEl.classList.remove("roll"); void nowEl.offsetWidth; nowEl.classList.add("roll"); }
-      $("[data-eve-word]").textContent = m < 17 * 60 ? "afternoon" : m < WORK ? "almost done" : m < 21 * 60 ? "evening" : "night";
-      $("[data-eve-t]").textContent = night ? "Evening mode is on" : "Daytime";
-      $("[data-eve-s]").textContent = night ? "Nothing unlocks until 07:00, and no install windows either." : "You can ask to turn off. It takes 24 hours.";
-      bar.classList.toggle("night", night);
-      $$('[data-shots="eve"] img').forEach((im, k) => im.classList.toggle("on", k === (night ? 1 : 0)));
+    function setState(isNight) {
+      const apply = () => {
+        $("[data-eve-t]").textContent = isNight ? "Evening mode is on" : "Daytime";
+        $("[data-eve-s]").textContent = isNight ? "Nothing unlocks until 07:00, and no install windows either." : "You can ask to turn off. It takes 24 hours.";
+      };
+      bar.classList.toggle("night", isNight);
+      $$('[data-shots="eve"] img').forEach((im, k) => im.classList.toggle("on", k === (isNight ? 1 : 0)));
+      clearTimeout(fadeTimer);
+      if (night === null || reduce) { apply(); return; }
+      stateEl.style.transition = "opacity .2s ease"; stateEl.style.opacity = 0;
+      fadeTimer = setTimeout(() => { apply(); stateEl.style.opacity = 1; }, 200);
     }
-    function glideTo(to, dur, done) {
-      const from = pos, t0 = performance.now(); cancelAnimationFrame(eveRaf);
-      const go = now => { const k = reduce ? 1 : Math.min(1, (now - t0) / dur); pos = from + (to - from) * ease(k); place(pos); if (k < 1) eveRaf = requestAnimationFrame(go); else if (done) done(); };
-      eveRaf = requestAnimationFrame(go);
+    function paint(m) {
+      const p = pct(m) + "%"; fillEl.style.width = p; markEl.style.left = p;
+      const min = Math.round(m);
+      if (min !== lastMin) {
+        lastMin = min;
+        nowEl.textContent = `${pad(min / 60 | 0)}:${pad(min % 60)}`;
+        wordEl.textContent = min < 17 * 60 ? "afternoon" : min < WORK ? "almost done" : min < 21 * 60 ? "evening" : "night";
+      }
+      const isNight = min >= WORK;
+      if (isNight !== night) { setState(isNight); night = isNight; }
     }
-    const wait = (ms_, fn) => { clearTimeout(eveTimer); eveTimer = setTimeout(() => { if (running) fn(); }, ms_); };
-    function next() {
-      if (shown >= END) { wait(2400, () => { shown = START; label(shown, true); glideTo(START, 1200, () => wait(900, next)); }); return; }
-      shown += STEP; label(shown, true);
-      glideTo(shown, 820, () => wait(shown === WORK ? 1800 : 420, next));
+    function frame(now) {
+      let t = (now - t0) % TOTAL, m = START;
+      for (const [from, to, dur, curve] of PLAN) { if (t < dur) { m = from + (to - from) * (curve ? curve(t / dur) : 1); break; } t -= dur; }
+      paint(m); eveRaf = requestAnimationFrame(frame);
     }
-    function start() { running = true; cancelAnimationFrame(eveRaf); shown = pos = START; label(shown); place(pos); wait(700, next); }
-    function stop() { running = false; clearTimeout(eveTimer); cancelAnimationFrame(eveRaf); }
-    label(shown); place(pos);
+    function start() {
+      cancelAnimationFrame(eveRaf);
+      if (reduce) { paint(WORK + 120); return; }
+      t0 = performance.now(); eveRaf = requestAnimationFrame(frame);
+    }
+    const stop = () => cancelAnimationFrame(eveRaf);
+    paint(START);
     new IntersectionObserver(es => es.forEach(e => (e.isIntersecting ? start() : stop())), { rootMargin: "-45% 0px -45% 0px" }).observe($("#fx-eve .fx-row"));
   }
 

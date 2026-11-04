@@ -277,8 +277,6 @@ button.ms-row { cursor: pointer; }
 .eve { margin-top: 30px; max-width: 460px; }
 .eve .now { display: flex; align-items: baseline; gap: 12px; }
 .eve .now b { display: inline-block; font: 500 48px/1 var(--mono); letter-spacing: -0.02em; }
-.eve .now b.roll { animation: eveRoll .5s cubic-bezier(.3, 1.25, .5, 1); }
-@keyframes eveRoll { from { opacity: 0; transform: translateY(12px); } }
 .eve .now span { font-size: 16px; color: var(--sub); }
 .evebar { position: relative; margin-top: 22px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #3A342C 0 calc(var(--p, 50) * 1%), rgba(79, 110, 247, .35) calc(var(--p, 50) * 1%) 100%); }
 .evebar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 3px; background: var(--bone); opacity: .55; transition: background .5s ease, opacity .5s ease; }
