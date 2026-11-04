@@ -30,7 +30,7 @@
     const ms = $(wrap, ".ms"), q = s => $(ms, s);
     const sw = q(".ms-switch"), fill = q(".ms-fill"), lab = q(".ms-lab"), knob = q(".ms-knob");
     q("[data-bolts]").innerHTML = LOCKS.map(([ic, n]) => `<div class="ob-bolt"><span class="nm">${icon(18, P[ic])}<span>${n}</span></span><span class="rail"><i class="bar"></i><b class="catch"></b></span></div>`).join("");
-    q("[data-hours]").innerHTML = "<i></i>".repeat(24);
+    q("[data-hours]").innerHTML = Array.from({ length: 24 }, (_, k) => `<i style="--k:${k}"></i>`).join("");
     const rows = $$(ms, ".ob-bolt");
     let state = "off", urges = 14, busy = false, frames = [], timers = [], ticker = 0, dueAt = 0;
     const later = (ms_, fn) => { const id = setTimeout(fn, reduce ? 0 : ms_); timers.push(id); };
@@ -64,10 +64,10 @@
     function setSwitch(s, label, glideHome) {
       sw.classList.toggle("on", s === "on"); sw.classList.toggle("cd", s === "cd");
       fill.style.opacity = 0; fill.classList.toggle("o", false);
-      knob.style.transition = glideHome && !reduce ? "left .62s cubic-bezier(.3, 1.12, .45, 1)" : "none";
+      knob.style.transition = glideHome && !reduce ? "left 1.1s cubic-bezier(.22, 1, .36, 1)" : "none";
       knob.style.left = (s === "off" ? 6 : 260) + "px";
       lab.style.transition = "none"; lab.style.opacity = glideHome && !reduce ? 0 : 1;
-      if (glideHome && !reduce) { void lab.offsetWidth; lab.style.transition = "opacity .3s ease .42s"; lab.style.opacity = 1; }
+      if (glideHome && !reduce) { void lab.offsetWidth; lab.style.transition = "opacity .4s ease .75s"; lab.style.opacity = 1; }
       lab.className = "ms-lab " + (s === "off" ? "r" : "l");
       lab.innerHTML = s === "off" ? `<span>${label}</span>${icon(16, P.dblR, "ink")}`
         : s === "cd" ? `${icon(16, P.dblL, "softo")}<span>${label}</span>`
@@ -76,6 +76,14 @@
       knob.setAttribute("aria-label", s === "off" ? "Slide right to lock" : s === "cd" ? "Counting down. Tap Keep protection to cancel" : "Slide left to start turning off");
       ms.classList.remove("nudge", "nudge-l");
     }
+    /* the screen changes over: what leaves fades up and out, what arrives rises in */
+    const fadeOut = (els, dur) => { if (reduce) return; els.forEach(el => { el.style.transition = `opacity ${dur}ms ease, transform ${dur}ms ease`; el.style.opacity = 0; el.style.transform = "translateY(-6px)"; }); };
+    const fadeIn = (el, delay, dur) => {
+      if (reduce) { el.style.opacity = 1; el.style.transform = ""; return; }
+      el.style.transition = "none"; el.style.opacity = 0; el.style.transform = "translateY(10px)"; void el.offsetWidth;
+      el.style.transition = `opacity ${dur}ms ease ${delay}ms, transform ${dur + 120}ms cubic-bezier(.3, 1.2, .5, 1) ${delay}ms`;
+      el.style.opacity = 1; el.style.transform = "none";
+    };
     function squares() {
       q("[data-sq]").innerHTML = Array.from({ length: 30 }, (_, i) => `<i class="${SLIPS.includes(i) ? "slip" : ""}${i === 29 ? " today" : ""}"></i>`).join("");
       q("[data-counts]").innerHTML = `<b>27 of 30</b> days clean · <b>${urges}</b> urges ridden out`;
@@ -92,9 +100,28 @@
     function toOn(fromCountdown) {
       state = "on"; clearInterval(ticker);
       setSwitch("on", "Slide to turn off");
+      if (fromCountdown) {
+        const head = q("[data-head]"), timer = q("[data-timer]"), rest = q("[data-rest]");
+        const back = () => {
+          timer.hidden = true; head.hidden = false;
+          q("[data-h]").textContent = "Locked."; q("[data-s]").textContent = "App Store and adult sites are blocked. The clock can't be changed.";
+          q("[data-lbl]").style.display = "none";
+          squares(); q("[data-sqwrap]").hidden = false;
+          q("[data-rows]").innerHTML = row("wave", "I have an urge", "ride it out", "main") + row("install", "Install window", "15 + 15 min");
+        };
+        q("[data-cap]").style.opacity = 0;
+        if (reduce) { back(); q("[data-bolts]").classList.remove("orange"); }
+        else {
+          fadeOut([timer, rest], 180);
+          later(120, () => q("[data-bolts]").classList.remove("orange"));
+          later(200, () => { back(); fadeIn(head, 0, 440); fadeIn(rest, 140, 440); });
+        }
+        say("Changed your mind: that counts as an urge ridden out");
+        later(2600, () => { if (state === "on") { ms.classList.add("nudge-l"); say("Slide back to the left"); } });
+        return;
+      }
       q("[data-timer]").hidden = true; q("[data-head]").hidden = false;
-      if (fromCountdown) { q("[data-h]").textContent = "Locked."; q("[data-s]").textContent = "App Store and adult sites are blocked. The clock can't be changed."; }
-      else { swapText(q("[data-h]"), "Locked."); swapText(q("[data-s]"), "App Store and adult sites are blocked. The clock can't be changed.", 40); }
+      swapText(q("[data-h]"), "Locked."); swapText(q("[data-s]"), "App Store and adult sites are blocked. The clock can't be changed.", 40);
       const lbl = q("[data-lbl]"); lbl.style.transition = "opacity .15s ease"; lbl.style.opacity = 0; later(160, () => { lbl.style.display = "none"; });
       q("[data-cap]").style.opacity = 0;
       q("[data-bolts]").classList.remove("orange"); rows.forEach(r => bolt(r, 1, { knock: false }));
@@ -108,14 +135,23 @@
       state = "cd"; dueAt = Date.now() + 24 * 3600e3;
       const due = new Date(dueAt), hm = due.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
       setSwitch("cd", `Off tomorrow, ${hm}`, true);
-      q("[data-head]").hidden = true; q("[data-timer]").hidden = false;
+      const head = q("[data-head]"), timer = q("[data-timer]"), rest = q("[data-rest]"), hours = q("[data-hours]");
       q("[data-line]").textContent = `Everything stays blocked until tomorrow, ${hm}. Changing your mind counts as an urge ridden out.`;
-      $$(ms, "[data-hours] i").forEach((i, k) => i.classList.toggle("past", k === 0));
-      q("[data-bolts]").classList.add("orange");
-      rows.forEach((r, i) => { $(r, ".bar").style.transition = `background .38s ease ${i * .07}s`; $(r, ".catch").style.transition = `border-color .38s ease ${i * .07}s`; });
-      q("[data-sqwrap]").hidden = true;
-      q("[data-rows]").innerHTML = row("lock", "Keep protection", "cancel", "main", "button") + row("wave", "I have an urge", "ride it out");
-      q("[data-keep]").addEventListener("click", keep);
+      rows.forEach((r, i) => { $(r, ".bar").style.transition = `background .45s ease ${i * .08}s`; $(r, ".catch").style.transition = `border-color .45s ease ${i * .08}s`; });
+      const swap = () => {
+        head.hidden = true; timer.hidden = false;
+        $$(hours, "i").forEach((i, k) => i.classList.toggle("past", k === 0));
+        if (!reduce) { hours.classList.remove("pop"); void hours.offsetWidth; hours.classList.add("pop"); }
+        q("[data-sqwrap]").hidden = true;
+        q("[data-rows]").innerHTML = row("lock", "Keep protection", "cancel", "main", "button") + row("wave", "I have an urge", "ride it out");
+        q("[data-keep]").addEventListener("click", keep);
+      };
+      if (reduce) { swap(); q("[data-bolts]").classList.add("orange"); }
+      else {
+        fadeOut([head, rest], 200);
+        later(160, () => q("[data-bolts]").classList.add("orange"));
+        later(230, () => { swap(); fadeIn(timer, 0, 500); fadeIn(rest, 180, 480); });
+      }
       const t = q("[data-t]");
       const show = () => { const s = Math.max(0, Math.round((dueAt - Date.now()) / 1000)); t.textContent = `${pad(s / 3600 | 0)}:${pad((s % 3600) / 60 | 0)}:${pad(s % 60)}`; };
       show(); clearInterval(ticker); ticker = setInterval(show, 1000);
