@@ -37,6 +37,7 @@
     let state = "off", urges = 14, busy = false, frames = [], timers = [], ticker = 0, dueAt = 0;
     const later = (ms_, fn) => { const id = setTimeout(fn, reduce ? 0 : ms_); timers.push(id); };
     let sayTimer = 0;
+    if (hint) hint.dataset.say = hint.textContent.trim();
     const say = t => {
       if (!hint || hint.dataset.say === t) return;
       hint.dataset.say = t; clearTimeout(sayTimer);
@@ -61,14 +62,6 @@
         if (pos >= 1 && !was && o.knock !== false && !reduce) { const c = $(r, ".catch"); c.classList.remove("knock"); void c.offsetWidth; c.classList.add("knock"); }
       };
       if (o.anim && pos >= 1) later(((o.delay || 0) + 0.36) * 1000, seat); else seat();
-    }
-    function swapText(el, text, delay = 0) {
-      if (reduce) { el.innerHTML = text; return; }
-      later(delay, () => { el.style.opacity = 0; });
-      later(delay + 140, () => {
-        el.innerHTML = text; el.style.transition = "none"; el.style.transform = "translateY(8px)"; void el.offsetWidth;
-        el.style.transition = "opacity .3s ease, transform .42s cubic-bezier(.3,1.3,.5,1)"; el.style.opacity = 1; el.style.transform = "none";
-      });
     }
     function setSwitch(s, label, glideHome, labelDelay) {
       sw.classList.toggle("on", s === "on"); sw.classList.toggle("cd", s === "cd");
@@ -257,6 +250,7 @@
     }
     function overlay(html) { const d = document.createElement("div"); d.innerHTML = html.trim(); const el = d.firstElementChild; ms.appendChild(el); return el; }
     function breathe(el) {
+      if (reduce) return;
       const sq = $(el, "[data-bsq]"), word = $(el, "[data-bword]"), ph = $$(el, "[data-bp]"), tm = $(el, "[data-btime]"), t0 = performance.now();
       const go = now => {
         const t = (now - t0) / 1000, c = t % 14, p = c < 4 ? 0 : c < 8 ? 1 : 2, left = p === 0 ? 4 - c : p === 1 ? 8 - c : 14 - c;
@@ -313,7 +307,7 @@
       <div class="rsq">${Array.from({ length: 30 }, (_, i) => `<i style="--k:${i}" class="${SLIPS.includes(i) ? "slip" : ""}${i === 29 ? " today" : ""}"></i>`).join("")}</div>
       <p class="rcount">27 of 30 days clean · Breathe helped</p><div class="rdone">Done</div></div>`;
     function scene(n, play) {
-      ms.classList.add("static"); knob.tabIndex = -1;
+      ms.classList.add("static"); knob.tabIndex = -1; wrap.inert = true;
       if (n === 0) { snapOff(); if (play) later(700, () => autoSlide(1500)); }
       else if (n === 1) { snapOn(); if (play) later(800, () => autoSlide(1500)); }
       else if (n === 2) { snapOn(); const b = overlay(BREATHE); b.style.transition = "none"; b.classList.add("on"); if (play) breathe(b); }
@@ -351,8 +345,9 @@
   const story = $("#d-story") || document.createElement("section"), steps = $$(story, ".d-step"), dots = $$(story, ".dots i");
   let cur = -1;
   // wide screens: one phone beside the steps plays the scene of the current step, once the story is in view
-  const storyWrap = $(story, '[data-dev="story"]'), storyH = () => Math.min(560, innerHeight - 200);
+  const storyWrap = $(story, '[data-dev="story"]'), storyH = () => clamp(innerHeight - 200, 300, 560);
   let storyKey = null, storyDev = null, storySwap = 0;
+  function dropStory() { if (storyDev) { storyDev.destroy(); storyDev = null; storyWrap.innerHTML = ""; } storyKey = null; clearTimeout(storySwap); }
   function storyScene(key) {
     if (!storyWrap || key === storyKey) return;
     const first = storyKey === null; storyKey = key; clearTimeout(storySwap);
@@ -370,7 +365,7 @@
     }), { rootMargin: "-25% 0px -25% 0px" }).observe(w);
   });
   function syncStory() {
-    if (innerWidth < 900 || !steps.length) return;
+    if (innerWidth < 900 || !steps.length) { dropStory(); return; }
     const line = innerHeight * 0.5;
     let n = 0;
     steps.forEach((s, i) => { if (s.getBoundingClientRect().top < line) n = i; });
