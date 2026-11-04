@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/detent.css?v=fb44491c">
+<link rel="stylesheet" href="assets/detent.css?v=a478a43e">
 </head>
 <body data-page="home">
 <template id="dev-tpl">
@@ -71,38 +71,36 @@
         <div class="d-step" data-bg="#ECE8DE" data-fg="#16130F" data-sub="#55504A">
           <span class="k">Lock</span><h2>One slide. Everything closes.</h2>
           <p>The App Store stops installing, adult sites are filtered, the apps you choose sit behind a shield, and the clock can't be changed.</p>
-          <div class="phone inline"><div class="scr"><img src="img/phone-01-on.jpg" alt="Locked main screen"></div></div>
+          <div class="devwrap inline" data-scene="0" aria-hidden="true"></div>
         </div>
         <div class="d-step" data-bg="#ECE8DE" data-fg="#16130F" data-sub="#55504A">
           <span class="k">Turning off</span><h2>Turning it off takes a day.</h2>
           <p>Slide back, take ten seconds to think, do one short task, then wait 24 hours. Change your mind at any step and it counts as an urge you rode out.</p>
-          <div class="phone inline"><div class="scr"><img src="img/phone-b3-countdown.jpg" alt="Countdown screen: 23:41:08 until protection turns off"></div></div>
+          <div class="devwrap inline" data-scene="1" aria-hidden="true"></div>
         </div>
         <div class="d-step" data-bg="#1F45D6" data-fg="#ECE8DE" data-sub="#C9D3FF">
           <span class="k">I have an urge</span><h2>Ride out the wave.</h2>
           <p>Seven quick tasks for the worst minutes. None of them unlocks anything. They just help the wave pass.</p>
-          <div class="phone inline"><div class="scr"><img src="img/phone-task-breathe.jpg" alt="Breathing task"></div></div>
+          <div class="devwrap inline" data-scene="2" aria-hidden="true"></div>
         </div>
         <div class="d-step" data-bg="#16130F" data-fg="#ECE8DE" data-sub="#A9A296">
           <span class="k">Evening mode</span><h2>Guard your evenings.</h2>
           <p>From the end of your workday until morning, nothing can be unlocked. That's when the urge is strongest.</p>
-          <div class="phone inline"><div class="scr"><img src="img/phone-04-evening.jpg" alt="Evening mode"></div></div>
+          <div class="devwrap inline" data-scene="3" aria-hidden="true"></div>
         </div>
         <div class="d-step" data-bg="#ECE8DE" data-fg="#16130F" data-sub="#55504A">
           <span class="k">Install window</span><h2>Need an app? Ask for a window.</h2>
           <p>Wait 15 minutes, install during the next 15, and the lock comes back by itself, even if you never open Detent.</p>
-          <div class="phone inline"><div class="scr"><img src="img/phone-c2-windowopen.jpg" alt="Install window open: 13:02 left to install"></div></div>
+          <div class="devwrap inline" data-scene="4" aria-hidden="true"></div>
         </div>
         <div class="d-step" data-bg="#1F45D6" data-fg="#ECE8DE" data-sub="#C9D3FF">
           <span class="k">Progress</span><h2>Nothing resets to zero.</h2>
           <p>Detent counts clean days out of the last 30 and every urge you rode out. A slip leaves one gap, not a zero.</p>
-          <div class="phone inline"><div class="scr"><img src="img/phone-06-rode-it-out.jpg" alt="Rode it out"></div></div>
+          <div class="devwrap inline" data-scene="5" aria-hidden="true"></div>
         </div>
       </div>
       <div class="d-sticky" aria-hidden="true">
-        <div class="phone"><div class="scr">
-          <img class="on" src="img/phone-01-on.jpg" alt=""><img src="img/phone-b3-countdown.jpg" alt=""><img src="img/phone-task-breathe.jpg" alt=""><img src="img/phone-04-evening.jpg" alt=""><img src="img/phone-c2-windowopen.jpg" alt=""><img src="img/phone-06-rode-it-out.jpg" alt="">
-        </div></div>
+        <div class="devwrap" data-dev="story"></div>
         <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
       </div>
     </div>
@@ -123,6 +121,6 @@
     <div class="wrap"><div class="foot"><span>© 2026 Nikita Storchai</span><span><a href="features.html">Features</a> · <a href="support.html">Support</a> · <a href="privacy.html">Privacy</a></span></div></div>
   </section>
 </main>
-<script src="assets/detent.js?v=9acf4113"></script>
+<script src="assets/detent.js?v=f3796f0d"></script>
 </body>
 </html>

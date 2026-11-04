@@ -17,6 +17,7 @@
     lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
     open: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.6-1.7"/>',
     glass: '<path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 5 8 9s-8 5-8 9"/><path d="M16 3c0 4-8 5-8 9s8 5 8 9"/>',
+    moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
     chevR: '<path d="M9 6l6 6-6 6"/>', dblR: '<path d="M5 6l6 6-6 6M13 6l6 6-6 6"/>', dblL: '<path d="M11 6l-6 6 6 6M19 6l-6 6 6 6"/>'
   };
   const icon = (s, body, cls = "") => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" class="${cls}" aria-hidden="true">${body}</svg>`;
@@ -25,7 +26,7 @@
   const SLIPS = [5, 12, 20];
 
   /* ---------- a live main screen ---------- */
-  function mountDevice(wrap, hint) {
+  function mountDevice(wrap, hint, opts = {}) {
     wrap.appendChild($("#dev-tpl").content.firstElementChild.cloneNode(true));
     const ms = $(wrap, ".ms"), q = s => $(ms, s);
     const sw = q(".ms-switch"), fill = q(".ms-fill"), lab = q(".ms-lab"), knob = q(".ms-knob");
@@ -90,7 +91,7 @@
         : s === "cd" ? `${icon(16, P.dblL, "softo")}<span>${label}</span>`
         : `${icon(16, P.dblL, "soft")}<span>${label}</span><span class="mono">24 H</span>`;
       knob.innerHTML = icon(26, s === "off" ? P.open : s === "cd" ? P.glass : P.lock, s === "off" ? "k-off" : s === "cd" ? "k-cd" : "k-on");
-      knob.classList.remove("pop"); if (label !== "Slide to lock" && !reduce) { void knob.offsetWidth; knob.classList.add("pop"); }
+      knob.classList.remove("pop"); if (soft) { void knob.offsetWidth; knob.classList.add("pop"); }
       knob.setAttribute("aria-label", s === "off" ? "Slide right to lock" : s === "cd" ? "Counting down. Tap Keep protection to cancel" : "Slide left to start turning off");
       ms.classList.remove("nudge", "nudge-l");
     }
@@ -135,7 +136,7 @@
           later(200, () => { back(); fadeIn(head, 0, 440); fadeIn(rest, 140, 440); });
         }
         say("Changed your mind: that counts as an urge ridden out");
-        later(2600, () => { if (state === "on") ms.classList.add("nudge-l"); });
+        later(2600, () => { if (state === "on" && !opts.scene && opts.scene !== 0) ms.classList.add("nudge-l"); });
         return;
       }
       const h = q("[data-h]"), sub = q("[data-s]"), lbl = q("[data-lbl]"), rest = q("[data-rest]");
@@ -155,7 +156,7 @@
         fadeIn(rest, 520, 560);
       }
       say("Locked. Now slide it back to the left");
-      later(2200, () => { if (state === "on") ms.classList.add("nudge-l"); });
+      later(2200, () => { if (state === "on" && opts.scene === undefined) ms.classList.add("nudge-l"); });
     }
     function toCountdown() {
       state = "cd"; dueAt = Date.now() + 24 * 3600e3;
@@ -202,7 +203,7 @@
     };
     const resetFill = () => { fill.style.left = 0; fill.style.right = "auto"; };
     let drag = null;
-    knob.addEventListener("pointerdown", e => { if (busy || state === "cd") return; knob.setPointerCapture(e.pointerId); fillFade++; ms.classList.remove("nudge", "nudge-l"); drag = { x: e.clientX, k: ms.getBoundingClientRect().width / 390, p: 0 }; });
+    knob.addEventListener("pointerdown", e => { if (busy || state === "cd" || opts.scene !== undefined) return; knob.setPointerCapture(e.pointerId); fillFade++; ms.classList.remove("nudge", "nudge-l"); drag = { x: e.clientX, k: ms.getBoundingClientRect().width / 390, p: 0 }; });
     knob.addEventListener("pointermove", e => { if (!drag) return; const dir = state === "on" ? -1 : 1; drag.p = clamp(((e.clientX - drag.x) * dir) / (254 * drag.k)); follow(drag.p); });
     const release = e => {
       if (!drag) return;
@@ -222,23 +223,124 @@
     };
     knob.addEventListener("pointerup", release); knob.addEventListener("pointercancel", release); knob.addEventListener("lostpointercapture", release);
     knob.addEventListener("keydown", e => {
-      if (e.key !== "Enter" && e.key !== " " && e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      if (opts.scene !== undefined || (e.key !== "Enter" && e.key !== " " && e.key !== "ArrowRight" && e.key !== "ArrowLeft")) return;
       e.preventDefault();
       if (state === "off" && e.key !== "ArrowLeft") toOn(false);
       else if (state === "on" && e.key !== "ArrowRight") toCountdown();
       else if (state === "cd") keep();
     });
 
+    /* ---------- story scenes: the same screen playing one part of the app by itself ---------- */
+    let winTick = 0, breathRaf = 0;
+    const homeRows = () => row("wave", "I have an urge", "ride it out", "main") + row("install", "Install window", "15 + 15 min");
+    function snapOn() { // locked, at once
+      state = "on";
+      setSwitch("on", "Slide to turn off");
+      q("[data-head]").hidden = false; q("[data-timer]").hidden = true;
+      q("[data-h]").textContent = "Locked."; q("[data-s]").textContent = "App Store and adult sites are blocked. The clock can't be changed.";
+      q("[data-lbl]").style.display = "none";
+      const cap = q("[data-cap]"); cap.style.transition = "none"; cap.style.opacity = 0;
+      rows.forEach(r => bolt(r, 1, { knock: false }));
+      squares(); q("[data-sqwrap]").hidden = false;
+      q("[data-rows]").innerHTML = homeRows();
+      const rest = q("[data-rest]"); rest.style.transition = "none"; rest.style.opacity = 1;
+    }
+    function snapOff() { toOff(); timers.forEach(clearTimeout); timers = []; ms.classList.remove("nudge"); }
+    function autoSlide(dur) { // a finger takes the knob all the way
+      busy = true;
+      tween(dur, k => follow(ease(k)), () => { busy = false; resetFill(); if (state === "off") toOn(false); else if (state === "on") toCountdown(); });
+    }
+    function tap(label, done) {
+      const r = $$(ms, ".ms-row").find(x => x.textContent.includes(label));
+      if (r) { r.classList.add("tap"); later(460, () => r.classList.remove("tap")); }
+      later(420, done);
+    }
+    function overlay(html) { const d = document.createElement("div"); d.innerHTML = html.trim(); const el = d.firstElementChild; ms.appendChild(el); return el; }
+    function breathe(el) {
+      const sq = $(el, "[data-bsq]"), word = $(el, "[data-bword]"), ph = $$(el, "[data-bp]"), tm = $(el, "[data-btime]"), t0 = performance.now();
+      const go = now => {
+        const t = (now - t0) / 1000, c = t % 14, p = c < 4 ? 0 : c < 8 ? 1 : 2, left = p === 0 ? 4 - c : p === 1 ? 8 - c : 14 - c;
+        const k = p === 0 ? c / 4 : p === 1 ? 1 : 1 - (c - 8) / 6;
+        sq.style.transform = `scale(${0.62 + 0.38 * ease(k)})`; sq.textContent = Math.ceil(left);
+        word.textContent = ["Inhale", "Hold", "Exhale"][p]; ph.forEach((e, j) => e.classList.toggle("on", j === p));
+        const r = Math.max(0, 120 - t); tm.textContent = `${Math.floor(r / 60)}:${pad(Math.floor(r % 60))}`;
+        breathRaf = requestAnimationFrame(go);
+      };
+      breathRaf = requestAnimationFrame(go);
+    }
+    function toEvening() { // the workday ends: the screen goes dark and turning off pauses until morning
+      const parts = [q(".ms-top"), q(".ms-body")];
+      fadeOut(parts, 300);
+      later(160, () => ms.classList.add("night"));
+      lab.style.transition = "opacity .25s ease"; lab.style.opacity = 0;
+      later(320, () => {
+        q("[data-rows]").innerHTML = row("wave", "I have an urge", "ride it out", "main") + row("install", "Install window", "from 07:00", "dim") + row("moon", "Evening mode is on", "until 07:00", "moonrow");
+        parts.forEach((el, i) => fadeIn(el, i * 80, 620));
+        lab.className = "ms-lab l"; lab.innerHTML = `${icon(16, P.moon, "soft")}<span>Turning off paused till 07:00</span>`;
+        lab.style.transition = "opacity .6s ease .35s"; lab.style.opacity = 1;
+      });
+    }
+    function toWindow() { // the install window opens: the App Store bolt draws back for fifteen minutes
+      const head = q("[data-head]"), timer = q("[data-timer]"), rest = q("[data-rest]"), hours = q("[data-hours]"), cap = q("[data-cap]"), app = rows[0];
+      fadeOut([head, rest], 220);
+      later(140, () => { app.classList.add("open"); bolt(app, 0, { anim: true }); });
+      sw.classList.remove("on"); sw.classList.add("cd");
+      lab.style.transition = "opacity .2s ease"; lab.style.opacity = 0;
+      knob.style.transition = reduce ? "none" : "left 1.1s cubic-bezier(.22, 1, .36, 1)"; knob.style.left = "133px";
+      later(220, () => { knob.innerHTML = icon(26, P.glass, "k-cd"); if (!reduce) { knob.classList.remove("pop"); void knob.offsetWidth; knob.classList.add("pop"); } });
+      const end = new Date(Date.now() + 15 * 60e3).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+      later(240, () => {
+        head.hidden = true; timer.hidden = false;
+        q("[data-t]").textContent = "15:00"; q(".ms-timer .u").textContent = "left to install";
+        q("[data-line]").textContent = `Closes on its own at ${end}, even if you leave the app.`;
+        hours.classList.add("win"); hours.innerHTML = Array.from({ length: 15 }, (_, k) => `<i class="past" style="--k:${k}"></i>`).join("");
+        if (!reduce) { hours.classList.remove("pop"); void hours.offsetWidth; hours.classList.add("pop"); }
+        q("[data-sqwrap]").hidden = true;
+        q("[data-rows]").innerHTML = row("install", "Open App Store", "", "main") + row("lock", "Close window early", "relock now");
+        fadeIn(timer, 0, 520); fadeIn(rest, 180, 500);
+        cap.textContent = "Social apps and adult sites stay blocked."; cap.style.transition = "opacity .5s ease .5s"; cap.style.opacity = 1;
+        let left = 15 * 60; clearInterval(winTick);
+        winTick = setInterval(() => { left = Math.max(0, left - 1); q("[data-t]").textContent = `${pad(left / 60 | 0)}:${pad(left % 60)}`; }, 1000);
+      });
+    }
+    const BREATHE = `<div class="ts"><div class="bar"><span class="back">${icon(20, '<path d="M15 6l-6 6 6 6"/>')}</span><span class="mid">Breathe · 2 min</span></div>
+      <div class="bbox"><div class="bsq" data-bsq>4</div></div><div class="bword" data-bword>Inhale</div>
+      <div class="bphases"><span><i class="on" data-bp="0">In 4</i></span><span><i data-bp="1">Hold 4</i></span><span><i data-bp="2">Out 6</i></span></div>
+      <div class="btime"><b data-btime>2:00</b><span>left</span></div><p class="bfoot">Leave the app and the timer pauses.</p></div>`;
+    const RODE = `<div class="ts rode"><div class="bar"><span class="xbtn">${icon(20, '<path d="M6 6l12 12M18 6L6 18"/>')}</span></div>
+      <h3 class="rh">Rode it out.</h3><div class="rnum"><span class="col"><b>14</b><b>15</b></span></div>
+      <p class="rsub">urges ridden out. A slip won't erase them.</p>
+      <div class="rsq">${Array.from({ length: 30 }, (_, i) => `<i style="--k:${i}" class="${SLIPS.includes(i) ? "slip" : ""}${i === 29 ? " today" : ""}"></i>`).join("")}</div>
+      <p class="rcount">27 of 30 days clean · Breathe helped</p><div class="rdone">Done</div></div>`;
+    function scene(n, play) {
+      ms.classList.add("static"); knob.tabIndex = -1;
+      if (n === 0) { snapOff(); if (play) later(700, () => autoSlide(1500)); }
+      else if (n === 1) { snapOn(); if (play) later(800, () => autoSlide(1500)); }
+      else if (n === 2) { snapOn(); const b = overlay(BREATHE); b.style.transition = "none"; b.classList.add("on"); if (play) breathe(b); }
+      else if (n === 3) { snapOn(); if (play) later(1000, toEvening); }
+      else if (n === 4) { snapOn(); if (play) later(700, () => tap("Install window", toWindow)); }
+      else {
+        snapOn(); const r = overlay(RODE), col = $(r, ".col"); r.style.transition = "none"; r.classList.add("on");
+        if (play && !reduce) { $(r, ".rsq").classList.add("pop"); later(1200, () => col.classList.add("go")); }
+        else { col.style.transition = "none"; col.classList.add("go"); }
+      }
+    }
+    function destroy() {
+      removeEventListener("resize", size);
+      timers.forEach(clearTimeout); frames.forEach(cancelAnimationFrame); timers = []; frames = [];
+      clearInterval(ticker); clearInterval(winTick); cancelAnimationFrame(breathRaf); clearTimeout(sayTimer);
+    }
+
     /* size: the device's height follows the window, like a real phone held at arm's length */
     function size() {
       const narrow = innerWidth < 900;
-      const h = narrow ? Math.min(600, innerWidth * 1.55) : clamp(innerHeight - 190, 360, 600);
+      const h = opts.height ? opts.height() : narrow ? Math.min(600, innerWidth * 1.55) : clamp(innerHeight - 190, 360, 600);
       wrap.style.setProperty("--s", (h / 864).toFixed(4));
       rows.forEach(r => bolt(r, r.classList.contains("seated") ? 1 : 0, { knock: false }));
     }
     addEventListener("resize", size); size();
-    toOff();
-    return { size };
+    if (opts.scene === undefined) toOff(); else scene(opts.scene, opts.play);
+    return { size, destroy };
   }
 
   const heroEl = $('[data-dev="hero"]'), fxEl = $('[data-dev="fx"]');
@@ -246,16 +348,35 @@
   const fxDev = fxEl ? mountDevice(fxEl, $("[data-fxhint]")) : null;
 
   /* ---------- sticky story: a step is current once its heading passes the middle ---------- */
-  const story = $("#d-story") || document.createElement("section"), steps = $$(story, ".d-step"), shots = $$(story, ".d-sticky img"), dots = $$(story, ".dots i");
+  const story = $("#d-story") || document.createElement("section"), steps = $$(story, ".d-step"), dots = $$(story, ".dots i");
   let cur = -1;
+  // wide screens: one phone beside the steps plays the scene of the current step, once the story is in view
+  const storyWrap = $(story, '[data-dev="story"]'), storyH = () => Math.min(560, innerHeight - 200);
+  let storyKey = null, storyDev = null, storySwap = 0;
+  function storyScene(key) {
+    if (!storyWrap || key === storyKey) return;
+    const first = storyKey === null; storyKey = key; clearTimeout(storySwap);
+    const mount = () => { if (storyDev) storyDev.destroy(); storyWrap.innerHTML = ""; storyDev = mountDevice(storyWrap, null, { scene: Math.max(0, key), play: key >= 0, height: storyH }); storyWrap.style.opacity = 1; };
+    if (first || reduce) { mount(); return; }
+    storyWrap.style.opacity = 0; storySwap = setTimeout(mount, 300);
+  }
+  // phones: each step has its own phone, which plays its scene while it is on screen
+  $$(story, ".devwrap.inline").forEach(w => {
+    const n = +w.dataset.scene, h = () => Math.min(240, innerWidth * 0.62) / 0.4745;
+    let dev = mountDevice(w, null, { scene: n, play: false, height: h }), on = false;
+    new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting === on) return; on = e.isIntersecting;
+      dev.destroy(); w.innerHTML = ""; dev = mountDevice(w, null, { scene: n, play: on, height: h });
+    }), { rootMargin: "-25% 0px -25% 0px" }).observe(w);
+  });
   function syncStory() {
     if (innerWidth < 900 || !steps.length) return;
     const line = innerHeight * 0.5;
     let n = 0;
     steps.forEach((s, i) => { if (s.getBoundingClientRect().top < line) n = i; });
+    storyScene(steps[0].getBoundingClientRect().top < innerHeight * 0.75 ? n : -1);
     if (n === cur) return; cur = n;
     const d = steps[n].dataset;
-    shots.forEach((im, i) => im.classList.toggle("on", i === n));
     dots.forEach((im, i) => im.classList.toggle("on", i === n));
     story.style.setProperty("--bg", d.bg); story.style.setProperty("--fg", d.fg); story.style.setProperty("--sub", d.sub);
   }
