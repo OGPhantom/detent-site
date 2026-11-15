@@ -379,20 +379,93 @@
   addEventListener("scroll", syncStory, { passive: true });
   addEventListener("resize", () => { cur = -1; syncStory(); });
 
+  /* ---------- 2048: tiles that slide together and merge, as the app draws them ----------
+     Every new tile is a 32; each doubling steps from the lowest tile's colour toward cobalt, and
+     from 1024 the number turns white. `host` holds one empty cell per square (the grid) and
+     gets the tiles; `rows` is 1 for the cards' row of four, 4 for the app's board. */
+  const SHARE = [0, .14, .28, .42, .56, .85, 1];
+  const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const mixHex = (a, b, k) => { const A = rgb(a), B = rgb(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(",")})`; };
+  const step2048 = v => Math.min(6, Math.max(0, Math.round(Math.log2(v / 32))));
+  function merge2048(host, o) {
+    const N = o.rows * 4, SLIDE = reduce ? 0 : 460;
+    let cells = [], moves = 0, turn = 0, busy = false;
+    const at = (el, i) => (el.style.transform = `translate(calc(${i % 4} * (100% + var(--g))), calc(${i / 4 | 0} * (100% + var(--g))))`);
+    const paint = (el, v) => { el.textContent = v; el.dataset.d = String(v).length; el.style.backgroundColor = mixHex(o.base, "#1F45D6", SHARE[step2048(v)]); el.style.color = step2048(v) >= 5 ? "#FFFFFF" : "#16130F"; };
+    const bump = (el, c) => { el.classList.remove(c); void el.offsetWidth; el.classList.add(c); };
+    const add = (v, i, born) => { const el = document.createElement("i"); paint(el, v); at(el, i); host.appendChild(el); cells[i] = { v, el }; if (born) bump(el, "born"); };
+    const highest = () => Math.max(0, ...cells.filter(Boolean).map(c => c.v));
+    const report = () => o.onMove && o.onMove(moves, highest());
+    function deal(born) {
+      $$(host, "i").forEach(el => el.remove());
+      cells = Array(N).fill(null); moves = o.moves || 0;
+      o.start.forEach((v, i) => v && add(v, i, born)); report();
+    }
+    // each line's cells, from the end the tiles slide toward
+    const across = d => d === "right" || d === "left";
+    const lines = d => [...Array(across(d) ? o.rows : 4)].map((_, k) => {
+      const l = across(d) ? [0, 1, 2, 3].map(c => k * 4 + c) : [...Array(o.rows)].map((_, r) => r * 4 + k);
+      return d === "right" || d === "down" ? l.reverse() : l;
+    });
+    // slide every tile as far as it goes; equal neighbours merge once, from the far end
+    function plan(d) {
+      const placed = [], merges = []; let moved = false;
+      lines(d).forEach(line => {
+        const out = [];
+        line.forEach(i => {
+          const c = cells[i]; if (!c) return;
+          const top = out[out.length - 1];
+          if (top && top.v === c.v && !top.m) { top.m = true; merges.push([top, c]); moved = true; return; }
+          const to = line[out.length]; if (to !== i) moved = true;
+          out.push({ v: c.v, el: c.el, m: false, to });
+        });
+        placed.push(...out);
+      });
+      return { placed, merges, moved };
+    }
+    function tick() {
+      if (busy) return;
+      const dirs = typeof o.dirs === "function" ? o.dirs(turn++) : o.dirs;
+      const p = highest() >= 2048 ? null : dirs.map(plan).find(x => x.moved);
+      busy = true;
+      if (!p) { // nothing moves: fade out and start again
+        cells.forEach(c => c && (c.el.style.opacity = 0));
+        setTimeout(() => { deal(true); busy = false; }, reduce ? 0 : 320); return;
+      }
+      p.placed.forEach(c => at(c.el, c.to));
+      p.merges.forEach(([keep, gone]) => at(gone.el, keep.to));
+      setTimeout(() => {
+        cells = Array(N).fill(null);
+        p.placed.forEach(c => (cells[c.to] = { v: c.v, el: c.el }));
+        p.merges.forEach(([keep, gone]) => { gone.el.remove(); const c = cells[keep.to]; c.v *= 2; paint(c.el, c.v); bump(c.el, "pop"); });
+        const free = cells.map((c, i) => (c ? -1 : i)).filter(i => i >= 0);
+        if (free.length) add(32, o.spawn(free), true);
+        moves++; report(); busy = false;
+      }, SLIDE);
+    }
+    deal(false);
+    return { tick, deal: () => { busy = false; deal(false); } };
+  }
+
   /* ---------- the seven tasks ---------- */
-  const TASKS = [["Breathe", "2 min"], ["Phone down", "3 min"], ["Follow the dot", "2 min"], ["Walk", "200 steps"], ["Puzzle", "3 min"], ["Nose push-ups", "20 reps"], ["Retype your letter", "1 min"]];
+  const TASKS = [["Breathe", "2 min"], ["Phone down", "3 min"], ["Follow the dot", "2 min"], ["Walk", "200 steps"], ["2048", "2 min"], ["Nose push-ups", "20 reps"], ["Retype your letter", "1 min"]];
   const stageHTML = {
     "Breathe": `<div class="a-breathe"></div><span class="a-breathe-l"></span>`,
     "Phone down": `<div class="a-down-box"><p class="a-down-t"><span data-down>3:00</span><small>face down, then it counts</small></p><span class="a-table"></span><span class="a-down"></span></div>`,
     "Follow the dot": `<svg class="a-dot-path" viewBox="0 0 180 120"><path d="M 30 60 C 30 20, 90 20, 90 60 C 90 100, 150 100, 150 60 C 150 20, 90 20, 90 60 C 90 100, 30 100, 30 60 Z" fill="none" stroke="#CFC9BC" stroke-width="1.5" stroke-dasharray="3 5"/></svg><div class="a-dot"></div>`,
     "Walk": `<div class="a-walk"><span data-steps>0</span><small>of 200 steps</small></div><div class="a-walk-bar"><i></i></div>`,
-    "Puzzle": `<div class="a-puz"><i>1</i><i>2</i><i>3</i><i>4</i><i class="mv">5</i><i class="gap"></i><i>7</i><i>8</i><i>6</i></div>`,
+    "2048": `<div class="a-2048"><b></b><b></b><b></b><b></b></div>`,
     "Nose push-ups": `<div class="a-push"><div class="ring"></div><div class="n" data-push>0</div></div>`,
     "Retype your letter": `<div class="a-letter"><span class="cnt"><b data-typed-n>0</b>/ 43</span><p class="paper"><span class="done" data-type></span><span class="caret"></span><span class="rest" data-rest-txt></span></p></div>`
   };
   const cardHTML = TASKS.map(([n, v]) => `<div class="card"><div class="stage">${stageHTML[n]}</div><div class="t"><b>${n}</b><span>${v}</span></div></div>`).join("")
     + `<div class="card more"><p>None of them unlocks anything.</p><span>They help the wave pass, and each one counts as an urge ridden out.</span></div>`;
   $$("[data-cards]").forEach(c => (c.innerHTML = cardHTML));
+  // the 2048 card: a row of four that slides right; each new 32 takes the leftmost free cell
+  $$("[data-cards] .a-2048").forEach(row => {
+    const game = merge2048(row, { rows: 1, base: "#D9D3C6", start: [0, 32, 32, 64], dirs: ["right"], spawn: free => free[0] });
+    setInterval(game.tick, 1300);
+  });
   let tick = 0;
   if ($("[data-cards]")) setInterval(() => {
     tick++;
@@ -509,22 +582,14 @@
     addEventListener("resize", sizeLive); sizeLive();
     let cur = 0, t0 = performance.now(), raf = 0;
     const q = s_ => $(root, s_);
-    // puzzle board
-    const grid = q("[data-pgrid]"), SLOT = 110;
-    const tiles = [1, 2, 3, 4, 5, 7, 8, 6].map(n => { const t = document.createElement("div"); t.className = "ptile"; t.textContent = n; grid.appendChild(t); return t; });
-    const gap = document.createElement("div"); gap.className = "pgap"; grid.appendChild(gap);
-    let pz = [0, 1, 2, 3, 4, 5, 6, 7, -1], moves = 14, last = -1;
-    const place = (el, slot) => { el.style.left = (slot % 3) * SLOT + "px"; el.style.top = Math.floor(slot / 3) * SLOT + "px"; };
-    const pzPaint = () => { pz = [0, 1, 2, 3, 4, -1, 5, 6, 7]; pz.forEach((ti, slot) => { if (ti >= 0) place(tiles[ti], slot); else place(gap, slot); }); tiles.forEach((t, k) => t.classList.toggle("wrong", k === 7)); };
-    pzPaint();
-    let pzTimer = 0;
-    function pzStep() {
-      const g = pz.indexOf(-1), c = g % 3, r = Math.floor(g / 3);
-      const near = [c > 0 ? g - 1 : null, c < 2 ? g + 1 : null, r > 0 ? g - 3 : null, r < 2 ? g + 3 : null].filter(x => x !== null && x !== last);
-      const from = near[Math.floor(Math.random() * near.length)], ti = pz[from];
-      place(tiles[ti], g); place(gap, from); pz[g] = ti; pz[from] = -1; last = g;
-      moves += 1; q("[data-pmoves]").textContent = moves;
-    }
+    // 2048 board: the tiles keep to the bottom-right corner, sliding right or down while they can
+    const mgame = merge2048(q("[data-mgrid]"), {
+      rows: 4, base: "#ECE8DE", moves: 41, start: [0, 0, 0, 0, 0, 0, 0, 32, 0, 32, 64, 128, 32, 64, 128, 256],
+      dirs: k => (k % 2 ? ["down", "right", "left", "up"] : ["right", "down", "left", "up"]),
+      spawn: free => free[Math.floor(Math.random() * free.length)],
+      onMove: (n, top) => { q("[data-mmoves]").textContent = n === 1 ? "1 move" : `${n} moves`; q("[data-mtop]").textContent = top; }
+    });
+    let mTimer = 0;
     // walk path
     const wpath = q("[data-wpath]"), wdot = q("[data-wdot]"), wlen = wpath.getTotalLength();
     // letter
@@ -563,8 +628,6 @@
         const L = wlen * n / 200; wpath.setAttribute("stroke-dasharray", `${L} 2000`);
         const pt = wpath.getPointAtLength(L); wdot.setAttribute("cx", pt.x); wdot.setAttribute("cy", pt.y);
         q("[data-wleft]").textContent = n >= 200 ? "done" : `≈ ${Math.max(1, Math.ceil((200 - n) / 100))} min left`;
-      } else if (cur === 4) {
-        q("[data-ptime]").textContent = mmss(Math.max(0, 108 - t));
       } else if (cur === 5) { // a push-up every 1.4 s
         const n = Math.min(20, 7 + Math.floor(t / 1.4));
         q("[data-pn]").textContent = n; q("[data-pn2]").textContent = n;
@@ -580,10 +643,10 @@
     live.urge = n => {
       cur = n; t0 = performance.now();
       screens.forEach((el, k) => el.classList.toggle("on", k === n));
-      clearInterval(pzTimer); if (n === 4) { moves = 14; q("[data-pmoves]").textContent = moves; pzPaint(); pzTimer = setInterval(pzStep, 1200); }
+      clearInterval(mTimer); if (n === 4) { mgame.deal(); mTimer = setInterval(mgame.tick, 1300); }
       cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
     };
-    live.urgeStop = () => { cancelAnimationFrame(raf); clearInterval(pzTimer); };
+    live.urgeStop = () => { cancelAnimationFrame(raf); clearInterval(mTimer); };
   }
 
   /* ---------- Features: evening mode, an afternoon running into the night ----------

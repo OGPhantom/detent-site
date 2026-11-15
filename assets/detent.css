@@ -236,11 +236,18 @@ button.ms-row { cursor: pointer; }
 .a-walk-bar { position: absolute; left: 14%; right: 14%; bottom: 14%; height: 6px; border-radius: 3px; background: var(--off); overflow: hidden; }
 .a-walk-bar i { display: block; height: 100%; background: var(--cobalt); animation: walk 7s linear infinite; }
 @keyframes walk { from { width: 0; } to { width: 100%; } }
-.a-puz { width: 54%; aspect-ratio: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5%; position: relative; }
-.a-puz i { border-radius: 16%; background: var(--cobalt); color: var(--bone); display: grid; place-items: center; font: 600 12px var(--display); font-style: normal; }
-.a-puz i.gap { background: transparent; box-shadow: inset 0 0 0 1.5px var(--hairline); }
-.a-puz i.mv { animation: mv 3s ease-in-out infinite; }
-@keyframes mv { 0%, 20% { transform: translateX(0); } 45%, 75% { transform: translateX(calc(100% + 18%)); } 100% { transform: translateX(0); } }
+/* 2048: detent.js places the tiles; --g is the gap between cells */
+.a-2048, .ts .mgrid { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--g); }
+.a-2048 > b, .ts .mgrid > b { aspect-ratio: 1; }
+.a-2048 > i, .ts .mgrid > i { position: absolute; left: 0; top: 0; width: calc((100% - 3 * var(--g)) / 4); aspect-ratio: 1; display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-style: normal; line-height: 1; letter-spacing: -.02em; transition: transform .45s cubic-bezier(.3,.8,.2,1), opacity .3s ease, background-color .25s ease, color .25s ease; }
+.a-2048 > i.pop, .ts .mgrid > i.pop { animation: tPop .28s cubic-bezier(.3,1.6,.5,1); }
+.a-2048 > i.born, .ts .mgrid > i.born { animation: tBorn .3s ease-out; }
+@keyframes tPop { 0% { scale: 1; } 40% { scale: 1.16; } 100% { scale: 1; } }
+@keyframes tBorn { from { opacity: 0; scale: .6; } to { opacity: 1; scale: 1; } }
+.a-2048 { --g: 6px; width: 74%; container-type: inline-size; }
+.a-2048 > i { border-radius: 17%; font-size: 8cqw; }
+.a-2048 > i[data-d="3"] { font-size: 7cqw; }
+.a-2048 > i[data-d="4"] { font-size: 6cqw; }
 .a-push { display: grid; justify-items: center; gap: 10px; }
 .a-push .n { font: 500 clamp(34px, 4vw, 48px)/1 var(--mono); }
 .a-push .ring { width: 54px; height: 54px; border-radius: 50%; background: var(--cobalt); animation: push 1.6s ease-in-out infinite; }
@@ -379,14 +386,15 @@ button.ms-row { cursor: pointer; }
 .ts .wcount b { font: 600 84px/1 var(--display); letter-spacing: -0.02em; }
 .ts .wcount span { font: 400 16px var(--mono); color: #55504A; }
 .ts .wsnake { margin-top: 30px; display: block; overflow: visible; }
-/* puzzle */
-.ts .prow { margin-top: 18px; display: flex; justify-content: space-between; font: 400 15px var(--mono); color: #55504A; }
-.ts .prow b { color: #16130F; font-weight: 400; }
-.ts .pboard { margin-top: 16px; background: #16130F; border-radius: 20px; padding: 12px; }
-.ts .pgrid { position: relative; height: 318px; }
-.ts .ptile { position: absolute; width: 98px; height: 98px; border-radius: 14px; background: #1F45D6; display: grid; place-items: center; font: 600 40px/1 var(--display); color: #FFFFFF; transition: left .45s cubic-bezier(.4,0,.2,1), top .45s cubic-bezier(.4,0,.2,1), background-color .3s, color .3s; }
-.ts .ptile.wrong { background: #ECE8DE; color: #16130F; }
-.ts .pgap { position: absolute; width: 98px; height: 98px; border-radius: 14px; border: 1.5px dashed #8C867C; box-sizing: border-box; transition: left .45s, top .45s; }
+/* 2048 */
+.ts .mrow { margin-top: 18px; display: flex; justify-content: space-between; font: 400 15px var(--mono); color: #55504A; }
+.ts .mrow b { color: #16130F; font-weight: 400; }
+.ts .mboard { margin-top: 16px; background: #16130F; border-radius: 20px; padding: 12px; }
+.ts .mgrid { --g: 8px; }
+.ts .mgrid > b { border-radius: 10px; background: rgba(236, 232, 222, .1); }
+.ts .mgrid > i { border-radius: 10px; font-size: 32px; }
+.ts .mgrid > i[data-d="3"] { font-size: 23px; }
+.ts .mgrid > i[data-d="4"] { font-size: 17px; }
 /* push-ups */
 .ts.push { padding-left: 0; padding-right: 0; }
 .ts.push .bar { padding: 0 24px; }
