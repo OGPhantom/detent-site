@@ -41,10 +41,13 @@ button { font: inherit; color: inherit; }
 .site nav a { color: inherit; text-decoration: none; font-weight: 500; }
 .site nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
 .store { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
-.store .badge { display: block; border-radius: 9px; line-height: 0; }
-.store .badge:focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
-.store .badge img { display: block; width: auto; height: 51px; }
-.store-note { font: 500 17px/1.3 var(--body); color: var(--bone); }
+/* Apple's badge, untouched, and the date on one bone plate that is the link; 13 px round the badge is Apple's clear space (a quarter of its height) */
+.store-plate { display: flex; align-items: center; gap: 18px; padding: 13px 24px 13px 13px; border-radius: 22px; background: var(--bone); color: var(--ink); text-decoration: none; text-align: left; transition: background-color .15s ease; }
+.store-plate:hover { background: var(--surface); }
+.store-plate:focus-visible { outline: 3px solid var(--bone); outline-offset: 3px; border-radius: 22px; }
+.store-plate img { display: block; width: auto; height: 51px; }
+.plate-date { display: flex; flex-direction: column; gap: 3px; font: 600 16px/1.1 var(--display); letter-spacing: -.01em; white-space: nowrap; }
+.plate-date small { font: 500 13px/1.2 var(--body); letter-spacing: 0; color: var(--muted); }
 .facts { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 18px; font: 400 13px/1.4 var(--mono); }
 .facts span::before { content: "✓ "; }
 .foot a { color: inherit; text-decoration: none; }
@@ -475,4 +478,5 @@ button.ms-row { cursor: pointer; }
 }
 @media (max-width: 520px) { .store { flex-direction: column; width: fit-content; margin-inline: auto; } .cards { gap: 10px; } .card { padding: 10px; gap: 10px; border-radius: 18px; } .card .t { flex-direction: column; gap: 2px; } .card .t b { font-size: 15px; } .card.more p { font-size: 18px; }
   .a-down-t { top: 10%; font-size: 26px; } .a-down-t small { font-size: 10.5px; } .a-table { bottom: 12%; } .a-down { left: calc(50% - 10px); bottom: calc(12% + 3px); width: 20px; height: 34px; border-radius: 5px; } .a-down::after { inset: 2px; border-radius: 4px; } }
+@media (max-width: 359px) { .store-plate { flex-direction: column; gap: 13px; padding: 13px 13px 16px; } .plate-date { align-items: center; text-align: center; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
