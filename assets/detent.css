@@ -44,7 +44,7 @@ button { font: inherit; color: inherit; }
 .store .badge { display: block; border-radius: 9px; line-height: 0; }
 .store .badge:focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
 .store .badge img { display: block; width: auto; height: 51px; }
-.store-note { font: 400 13px/1.3 var(--mono); color: var(--on-cobalt); }
+.store-note { font: 500 17px/1.3 var(--body); color: var(--bone); }
 .facts { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 18px; font: 400 13px/1.4 var(--mono); }
 .facts span::before { content: "✓ "; }
 .foot a { color: inherit; text-decoration: none; }
