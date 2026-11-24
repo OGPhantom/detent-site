@@ -1,6 +1,19 @@
 /* Detent site: the live phones, the step-by-step scrolling and the feature demos. */
 (function () {
   const PAGE = document.body.dataset.page;
+
+  /* ---------- the store plate from release day ----------
+     Detent goes on sale on 1 December 2026. From then, by the visitor's own clock, the plate shows
+     Apple's "Download on the App Store" badge and "Out now" in place of the Pre-order badge and the date. */
+  if (Date.now() >= new Date(2026, 11, 1).getTime()) {
+    document.querySelectorAll(".store-plate").forEach(plate => {
+      const img = plate.querySelector("img");
+      img.src = "img/download-badge.svg";
+      img.alt = "Download on the App Store";
+      plate.querySelector(".plate-date").innerHTML = "<small>Out</small> now";
+      plate.classList.add("out");
+    });
+  }
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const $ = (el, s) => (s === undefined ? document.querySelector(el) : el.querySelector(s));
   const $$ = (el, s) => [...(s === undefined ? document.querySelectorAll(el) : el.querySelectorAll(s))];

@@ -16,8 +16,10 @@ branch root.
 Since 2026-11-24 both main pages show Apple's "Pre-order on the App Store"
 badge, untouched, on a bone plate with the date ("Out 1 December"); the whole
 plate links to the App Store page. Keep 13 px (a quarter of the badge's
-height) clear round the badge. On release day, 2026-12-01, swap it for the
-"Download on the App Store" badge (same link) and take the date off the plate.
+height) clear round the badge. From 2026-12-01, release day, `assets/detent.js`
+swaps it by the visitor's own date for the "Download on the App Store" badge
+(`img/download-badge.svg`, same link) and "Out now". Once the release is
+past, the swap can become plain markup.
 
 The app's code lives in a separate, private, local-only repository. Keep the
 privacy policy true to what the app does: if Detent ever starts collecting
