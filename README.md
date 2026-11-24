@@ -13,9 +13,9 @@ branch root.
 - `support.html` — support page (App Store Connect › version › Support URL)
 - `style.css` — styles for the privacy and support pages
 
-Until the release the store button is plain text ("Coming to the App Store,
-24 November, free"). On release day swap it for Apple's badge linking to the
-App Store page.
+Since 2026-11-24 both main pages show Apple's "Pre-order on the App Store"
+badge with the date next to it. On release day, 2026-12-01, swap it for the
+"Download on the App Store" badge (same link to the App Store page).
 
 The app's code lives in a separate, private, local-only repository. Keep the
 privacy policy true to what the app does: if Detent ever starts collecting
