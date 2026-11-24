@@ -53,6 +53,8 @@ button { font: inherit; color: inherit; }
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { text-decoration: underline; }
 .foot { padding-block: 26px calc(40px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; font: 400 13px/1.4 var(--mono); }
+/* Apple's credit line, asked for wherever the App Store badge is used */
+.foot .legal { flex-basis: 100%; margin: 0; font-size: 12px; line-height: 1.5; }
 
 /* Phone with a screenshot: an iPhone's outline at --w wide */
 .phone { --w: 260px; width: var(--w); max-width: 100%; aspect-ratio: 462 / 978; padding: calc(var(--w) * 0.024); border-radius: calc(var(--w) * 0.155); background: #0B0A08; box-shadow: inset 0 0 0 1px #3A352E, 0 30px 60px -28px rgba(10, 14, 40, .45); flex: none; position: relative; }
